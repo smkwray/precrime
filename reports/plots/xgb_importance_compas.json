@@ -1,0 +1,122 @@
+[
+  {
+    "feature": "is_violent_recid",
+    "importance": 0.16783533990383148
+  },
+  {
+    "feature": "score_text_Low",
+    "importance": 0.11703023314476013
+  },
+  {
+    "feature": "decile_score",
+    "importance": 0.03884263336658478
+  },
+  {
+    "feature": "age_cat_Less than 25",
+    "importance": 0.02754252590239048
+  },
+  {
+    "feature": "priors_count",
+    "importance": 0.023780282586812973
+  },
+  {
+    "feature": "score_text_High",
+    "importance": 0.019106943160295486
+  },
+  {
+    "feature": "c_charge_desc_Possession of Cocaine",
+    "importance": 0.01767870970070362
+  },
+  {
+    "feature": "c_charge_desc_Poss Pyrrolidinovalerophenone",
+    "importance": 0.01664615608751774
+  },
+  {
+    "feature": "sex_Female",
+    "importance": 0.015407354570925236
+  },
+  {
+    "feature": "v_score_text_High",
+    "importance": 0.015131914988160133
+  },
+  {
+    "feature": "c_charge_degree_F",
+    "importance": 0.014894318766891956
+  },
+  {
+    "feature": "age",
+    "importance": 0.014689305797219276
+  },
+  {
+    "feature": "c_charge_desc_arrest case no charge",
+    "importance": 0.014337453991174698
+  },
+  {
+    "feature": "c_charge_desc_Grand Theft in the 3rd Degree",
+    "importance": 0.013674478977918625
+  },
+  {
+    "feature": "c_charge_desc_Burglary Conveyance Unoccup",
+    "importance": 0.013176818378269672
+  },
+  {
+    "feature": "c_charge_desc_Felony Petit Theft",
+    "importance": 0.01219168957322836
+  },
+  {
+    "feature": "juv_other_count",
+    "importance": 0.012020226567983627
+  },
+  {
+    "feature": "v_decile_score",
+    "importance": 0.011659419164061546
+  },
+  {
+    "feature": "days_b_screening_arrest",
+    "importance": 0.0114280479028821
+  },
+  {
+    "feature": "c_charge_desc_Carrying Concealed Firearm",
+    "importance": 0.011412630788981915
+  },
+  {
+    "feature": "c_charge_desc_Felony Driving While Lic Suspd",
+    "importance": 0.011361374519765377
+  },
+  {
+    "feature": "c_charge_desc_Possession of Cannabis",
+    "importance": 0.010862783528864384
+  },
+  {
+    "feature": "c_charge_desc_Viol Injunct Domestic Violence",
+    "importance": 0.010827688500285149
+  },
+  {
+    "feature": "c_charge_desc_Battery on Law Enforc Officer",
+    "importance": 0.010771444998681545
+  },
+  {
+    "feature": "c_charge_desc_Possess Cannabis/20 Grams Or Less",
+    "importance": 0.0107128219678998
+  },
+  {
+    "feature": "c_charge_desc_Assault",
+    "importance": 0.010668397881090641
+  },
+  {
+    "feature": "c_charge_desc_Driving License Suspended",
+    "importance": 0.010605569928884506
+  },
+  {
+    "feature": "c_charge_desc_Grand Theft (Motor Vehicle)",
+    "importance": 0.010328099131584167
+  },
+  {
+    "feature": "sex_Male",
+    "importance": 0.010270822793245316
+  },
+  {
+    "feature": "c_charge_desc_Resist Officer w/Violence",
+    "importance": 0.010188266634941101
+  }
+]

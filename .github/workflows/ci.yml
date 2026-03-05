@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-and-preflight:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-modeling.txt -r requirements-viz.txt
+
+      - name: Unit tests
+        run: |
+          make test
+
+      - name: Export preflight (repo must be publish-safe)
+        env:
+          PREFLIGHT_USER_PATTERN: "shanewray|wray7830"
+        run: |
+          bash scripts/preflight_public_export.sh .

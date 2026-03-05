@@ -1,0 +1,217 @@
+{
+  "kind": "figure",
+  "title": "COMPAS Calibration base_rate (platt) by race",
+  "xaxis": "Mean Predicted Probability",
+  "yaxis": "Observed Positive Rate",
+  "traces": [
+    {
+      "type": "line",
+      "name": "Overall",
+      "x": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.4551084708838841,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.4551198963058976,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Perfect",
+      "x": [
+        0.0,
+        1.0
+      ],
+      "y": [
+        0.0,
+        1.0
+      ],
+      "style": "dashed"
+    },
+    {
+      "type": "line",
+      "name": "Group African-American",
+      "x": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.4551083685304016,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.5231496062992126,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group Asian",
+      "x": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.45510700290292855,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.25806451612903225,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group Caucasian",
+      "x": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.45510830266585267,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.3908701854493581,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group Hispanic",
+      "x": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.4551093514346509,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.3713163064833006,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group Native American",
+      "x": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.4551147054553516,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.45454545454545453,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group Other",
+      "x": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.4551090757282289,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.36151603498542273,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    }
+  ]
+}

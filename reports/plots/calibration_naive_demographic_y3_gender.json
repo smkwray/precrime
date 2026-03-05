@@ -1,0 +1,105 @@
+{
+  "kind": "figure",
+  "title": "Calibration naive_demographic y3 by gender",
+  "xaxis": "Mean Predicted Probability",
+  "yaxis": "Observed Positive Rate",
+  "traces": [
+    {
+      "type": "line",
+      "name": "Overall",
+      "x": [
+        0.08012389630088919,
+        0.155691518456046,
+        0.23385919601580585,
+        0.30647341043360976,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.132,
+        0.15715871254162042,
+        0.2262295081967213,
+        0.22058823529411764,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Perfect",
+      "x": [
+        0.0,
+        1.0
+      ],
+      "y": [
+        0.0,
+        1.0
+      ],
+      "style": "dashed"
+    },
+    {
+      "type": "line",
+      "name": "Group F",
+      "x": [
+        0.08012389630088919,
+        0.1410055309552134,
+        0.21641176278150284,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.132,
+        0.13843175217812198,
+        0.12389380530973451,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group M",
+      "x": [
+        NaN,
+        0.1600609381243525,
+        0.23430105167593054,
+        0.30647341043360976,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        0.1627304147465438,
+        0.22882115643209322,
+        0.22058823529411764,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    }
+  ]
+}

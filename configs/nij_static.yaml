@@ -1,0 +1,39 @@
+# NIJ Georgia parole — static-at-release feature track
+dataset:
+  name: nij
+  track: static
+  paths:
+    y1: data/processed/nij_static_y1.parquet
+    y2: data/processed/nij_static_y2.parquet
+    y3: data/processed/nij_static_y3.parquet
+
+evaluation:
+  primary_metric: brier
+  secondary_metrics: [auroc, auprc, log_loss, ece]
+  subgroup_attributes: [race, sex, age_group]
+  bootstrap:
+    enabled: true
+    n: 2000
+    seed: 1337
+
+training:
+  random_seed: 1337
+  cv_folds: 5
+  stratified: true
+
+models:
+  - name: base_rate
+    type: baseline
+  - name: logistic
+    type: logistic_regression
+    params:
+      max_iter: 2000
+  - name: lasso_logistic
+    type: l1_logistic_regression
+    params:
+      max_iter: 5000
+      c_grid: [0.01, 0.03, 0.1, 0.3, 1.0, 3.0, 10.0]
+
+calibration:
+  methods: [platt]
+

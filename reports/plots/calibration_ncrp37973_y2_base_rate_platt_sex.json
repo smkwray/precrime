@@ -1,0 +1,105 @@
+{
+  "kind": "figure",
+  "title": "NCRP 37973 Calibration y2 base_rate (platt) by sex",
+  "xaxis": "Mean Predicted Probability",
+  "yaxis": "Observed Positive Rate",
+  "traces": [
+    {
+      "type": "line",
+      "name": "Overall",
+      "x": [
+        NaN,
+        0.10209456019552456,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        0.10214586222295344,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Perfect",
+      "x": [
+        0.0,
+        1.0
+      ],
+      "y": [
+        0.0,
+        1.0
+      ],
+      "style": "dashed"
+    },
+    {
+      "type": "line",
+      "name": "Group Female",
+      "x": [
+        NaN,
+        0.10209524454806669,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        0.08218140503692482,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group Male",
+      "x": [
+        NaN,
+        0.1020944632152805,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        0.10497504427628401,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    }
+  ]
+}

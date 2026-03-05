@@ -1,0 +1,28 @@
+.DS_Store
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.venv*/
+.venv*
+.env
+.env.*
+
+# Never commit row-level datasets
+/data/
+*.csv
+*.parquet
+*.pkl
+*.joblib
+*.h5
+*.model
+
+# Logs
+remote_logs/
+*.log
+
+# OS metadata
+Thumbs.db
+Desktop.ini

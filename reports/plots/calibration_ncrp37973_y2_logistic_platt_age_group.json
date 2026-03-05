@@ -1,0 +1,77 @@
+{
+  "kind": "figure",
+  "title": "NCRP 37973 Calibration y2 logistic (platt) by age_group",
+  "xaxis": "Mean Predicted Probability",
+  "yaxis": "Observed Positive Rate",
+  "traces": [
+    {
+      "type": "line",
+      "name": "Overall",
+      "x": [
+        0.07090717048477134,
+        0.10497254684237904,
+        0.22523971921181024,
+        0.3118018119328889,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.06442869057547956,
+        0.10596397598398932,
+        0.23161764705882354,
+        0.75,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Perfect",
+      "x": [
+        0.0,
+        1.0
+      ],
+      "y": [
+        0.0,
+        1.0
+      ],
+      "style": "dashed"
+    },
+    {
+      "type": "line",
+      "name": "Group <25",
+      "x": [
+        0.07090717048477134,
+        0.10497254684237904,
+        0.22523971921181024,
+        0.3118018119328889,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.06442869057547956,
+        0.10596397598398932,
+        0.23161764705882354,
+        0.75,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    }
+  ]
+}

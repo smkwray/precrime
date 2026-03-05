@@ -1,0 +1,77 @@
+{
+  "kind": "figure",
+  "title": "NCRP 37973 Calibration y2 xgboost (isotonic) by age_group",
+  "xaxis": "Mean Predicted Probability",
+  "yaxis": "Observed Positive Rate",
+  "traces": [
+    {
+      "type": "line",
+      "name": "Overall",
+      "x": [
+        0.044529104339691615,
+        0.13901000055742713,
+        0.27735559321123804,
+        0.3691077497270372,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.045921123716909776,
+        0.13752236135957066,
+        0.27208480565371024,
+        0.4074074074074074,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Perfect",
+      "x": [
+        0.0,
+        1.0
+      ],
+      "y": [
+        0.0,
+        1.0
+      ],
+      "style": "dashed"
+    },
+    {
+      "type": "line",
+      "name": "Group <25",
+      "x": [
+        0.044529104339691615,
+        0.13901000055742713,
+        0.27735559321123804,
+        0.3691077497270372,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.045921123716909776,
+        0.13752236135957066,
+        0.27208480565371024,
+        0.4074074074074074,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    }
+  ]
+}

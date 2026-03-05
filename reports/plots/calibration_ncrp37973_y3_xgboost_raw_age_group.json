@@ -1,0 +1,77 @@
+{
+  "kind": "figure",
+  "title": "NCRP 37973 Calibration y3 xgboost (raw) by age_group",
+  "xaxis": "Mean Predicted Probability",
+  "yaxis": "Observed Positive Rate",
+  "traces": [
+    {
+      "type": "line",
+      "name": "Overall",
+      "x": [
+        0.05044221755737165,
+        0.11240864306443525,
+        0.21023080497980118,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.046501826355717896,
+        0.13141683778234087,
+        0.3333333333333333,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Perfect",
+      "x": [
+        0.0,
+        1.0
+      ],
+      "y": [
+        0.0,
+        1.0
+      ],
+      "style": "dashed"
+    },
+    {
+      "type": "line",
+      "name": "Group <25",
+      "x": [
+        0.05044221755737165,
+        0.11240864306443525,
+        0.21023080497980118,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.046501826355717896,
+        0.13141683778234087,
+        0.3333333333333333,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    }
+  ]
+}

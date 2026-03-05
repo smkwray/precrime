@@ -1,0 +1,369 @@
+{
+  "kind": "model_sweep_tradeoff",
+  "title": "Prediction vs NIJ-style FairAcc (sex-averaged)",
+  "subtitle": "Primary objective: minimize sex-avg Brier; FairAcc shown as an alternate NIJ-style view.",
+  "x_label": "Sex-average Brier error (lower is better)",
+  "y_label": "Sex-average FairAcc (higher is better)",
+  "panels": [
+    {
+      "horizon": "y1",
+      "variant": "with_race",
+      "points": [
+        {
+          "model": "logistic_gd",
+          "calibration": "raw",
+          "x": 0.16764840938023345,
+          "y": 0.8317104154713071,
+          "best_prediction": false,
+          "best_fairacc": true
+        },
+        {
+          "model": "logistic_gd",
+          "calibration": "platt",
+          "x": 0.16753945248685906,
+          "y": 0.8311183522663199,
+          "best_prediction": true,
+          "best_fairacc": false
+        },
+        {
+          "model": "logistic_gd",
+          "calibration": "isotonic",
+          "x": 0.16762141666667962,
+          "y": 0.8300649446724122,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "random_forest",
+          "calibration": "raw",
+          "x": 0.17233605833693083,
+          "y": 0.8192002416729467,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "random_forest",
+          "calibration": "platt",
+          "x": 0.17201192955640224,
+          "y": 0.8186114276160121,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "random_forest",
+          "calibration": "isotonic",
+          "x": 0.17244586575988918,
+          "y": 0.8199454944922759,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "extra_trees",
+          "calibration": "raw",
+          "x": 0.1718291970883784,
+          "y": 0.8244252793854273,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "extra_trees",
+          "calibration": "platt",
+          "x": 0.17176806532726502,
+          "y": 0.8235578021520765,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "extra_trees",
+          "calibration": "isotonic",
+          "x": 0.17238877832977262,
+          "y": 0.8260656403051587,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "hist_gb",
+          "calibration": "raw",
+          "x": 0.17140531281838411,
+          "y": 0.8153405440453617,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "hist_gb",
+          "calibration": "platt",
+          "x": 0.17136504145015197,
+          "y": 0.8151565553769822,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "hist_gb",
+          "calibration": "isotonic",
+          "x": 0.17189145894553093,
+          "y": 0.8141616534751381,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "xgb_best",
+          "calibration": "platt",
+          "x": 0.16828625918727172,
+          "y": 0.8307112084808328,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "xgb_retuned",
+          "calibration": "raw",
+          "x": 0.1682084536591706,
+          "y": 0.8310554663871397,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "xgb_retuned",
+          "calibration": "platt",
+          "x": 0.16812737642802728,
+          "y": 0.8314079063038249,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "xgb_retuned",
+          "calibration": "isotonic",
+          "x": 0.16796807727776003,
+          "y": 0.8305923057478077,
+          "best_prediction": false,
+          "best_fairacc": false
+        }
+      ]
+    },
+    {
+      "horizon": "y2",
+      "variant": "with_race",
+      "points": [
+        {
+          "model": "logistic_gd",
+          "calibration": "raw",
+          "x": 0.1654454195137935,
+          "y": 0.8267518978579802,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "logistic_gd",
+          "calibration": "platt",
+          "x": 0.1653422421157755,
+          "y": 0.8236233867785736,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "logistic_gd",
+          "calibration": "isotonic",
+          "x": 0.16501515971967162,
+          "y": 0.8313678182652444,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "random_forest",
+          "calibration": "raw",
+          "x": 0.16372684515806601,
+          "y": 0.833612669457978,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "random_forest",
+          "calibration": "platt",
+          "x": 0.1633014566104125,
+          "y": 0.8338943573461026,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "random_forest",
+          "calibration": "isotonic",
+          "x": 0.1640971157937432,
+          "y": 0.8269353665496899,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "extra_trees",
+          "calibration": "raw",
+          "x": 0.16576803319329006,
+          "y": 0.833510826986358,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "extra_trees",
+          "calibration": "platt",
+          "x": 0.16571746569270837,
+          "y": 0.8314880534048263,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "extra_trees",
+          "calibration": "isotonic",
+          "x": 0.1666888469997312,
+          "y": 0.8273538509074883,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "hist_gb",
+          "calibration": "raw",
+          "x": 0.16448441659718713,
+          "y": 0.823806704423744,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "hist_gb",
+          "calibration": "platt",
+          "x": 0.16241607387936233,
+          "y": 0.8227930932518277,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "hist_gb",
+          "calibration": "isotonic",
+          "x": 0.16255491839354647,
+          "y": 0.8360419741857886,
+          "best_prediction": false,
+          "best_fairacc": true
+        },
+        {
+          "model": "xgb_best",
+          "calibration": "isotonic",
+          "x": 0.161726580626951,
+          "y": 0.829038674387248,
+          "best_prediction": true,
+          "best_fairacc": false
+        }
+      ]
+    },
+    {
+      "horizon": "y3",
+      "variant": "with_race",
+      "points": [
+        {
+          "model": "logistic_gd",
+          "calibration": "raw",
+          "x": 0.12998695813673902,
+          "y": 0.869980181237137,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "logistic_gd",
+          "calibration": "platt",
+          "x": 0.12951913023495581,
+          "y": 0.8689506635804851,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "logistic_gd",
+          "calibration": "isotonic",
+          "x": 0.12896061840144896,
+          "y": 0.8710393815985511,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "random_forest",
+          "calibration": "raw",
+          "x": 0.12873047501935508,
+          "y": 0.8712695249806449,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "random_forest",
+          "calibration": "platt",
+          "x": 0.1283961823352628,
+          "y": 0.8716038176647372,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "random_forest",
+          "calibration": "isotonic",
+          "x": 0.12868010341333708,
+          "y": 0.8704548575366979,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "extra_trees",
+          "calibration": "raw",
+          "x": 0.1308463863493379,
+          "y": 0.8686162083487444,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "extra_trees",
+          "calibration": "platt",
+          "x": 0.13073979954059312,
+          "y": 0.8687227972377729,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "extra_trees",
+          "calibration": "isotonic",
+          "x": 0.13088555738169222,
+          "y": 0.8685766915582815,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "hist_gb",
+          "calibration": "raw",
+          "x": 0.12731157143474842,
+          "y": 0.8669513711158217,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "hist_gb",
+          "calibration": "platt",
+          "x": 0.12663596491718015,
+          "y": 0.8693165544716712,
+          "best_prediction": false,
+          "best_fairacc": false
+        },
+        {
+          "model": "hist_gb",
+          "calibration": "isotonic",
+          "x": 0.1263976361323544,
+          "y": 0.8736023638676456,
+          "best_prediction": true,
+          "best_fairacc": true
+        },
+        {
+          "model": "xgb_best",
+          "calibration": "isotonic",
+          "x": 0.12675255674694713,
+          "y": 0.8719385943465603,
+          "best_prediction": false,
+          "best_fairacc": false
+        }
+      ]
+    }
+  ],
+  "generated": "2026-03-02 15:55 EST",
+  "source": "model_sweep.json",
+  "notes": [
+    "FairAcc = (1 - BS) * FP where FP = 1 - |FPR_black@0.5 - FPR_white@0.5| (computed within sex, then averaged).",
+    "This is a diagnostic view; it does not recommend an operational threshold or policy."
+  ]
+}

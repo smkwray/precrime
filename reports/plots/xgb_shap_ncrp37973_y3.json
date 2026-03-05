@@ -1,0 +1,122 @@
+[
+  {
+    "feature": "RELEASEYR",
+    "mean_abs_shap": 0.7853246927261353
+  },
+  {
+    "feature": "ADMITYR",
+    "mean_abs_shap": 0.11498847603797913
+  },
+  {
+    "feature": "age_at_release",
+    "mean_abs_shap": 0.08974701166152954
+  },
+  {
+    "feature": "race_Black, non-Hispanic",
+    "mean_abs_shap": 0.08833806961774826
+  },
+  {
+    "feature": "TIMESRVD",
+    "mean_abs_shap": 0.04974636435508728
+  },
+  {
+    "feature": "PARELIG_YEAR",
+    "mean_abs_shap": 0.04384121298789978
+  },
+  {
+    "feature": "race_Hispanic, any race",
+    "mean_abs_shap": 0.04377325624227524
+  },
+  {
+    "feature": "ADMTYPE_2",
+    "mean_abs_shap": 0.04359932243824005
+  },
+  {
+    "feature": "age_at_admit",
+    "mean_abs_shap": 0.041663624346256256
+  },
+  {
+    "feature": "state_6",
+    "mean_abs_shap": 0.028805917128920555
+  },
+  {
+    "feature": "PROJ_PRISREL_YEAR",
+    "mean_abs_shap": 0.027262184768915176
+  },
+  {
+    "feature": "OFFGENERAL_2",
+    "mean_abs_shap": 0.022750958800315857
+  },
+  {
+    "feature": "sex_Female",
+    "mean_abs_shap": 0.0218498557806015
+  },
+  {
+    "feature": "state_17",
+    "mean_abs_shap": 0.020494800060987473
+  },
+  {
+    "feature": "state_48",
+    "mean_abs_shap": 0.01976180076599121
+  },
+  {
+    "feature": "OFFGENERAL_1",
+    "mean_abs_shap": 0.017812445759773254
+  },
+  {
+    "feature": "RELTYPE_1",
+    "mean_abs_shap": 0.01261252909898758
+  },
+  {
+    "feature": "SENTLGTH",
+    "mean_abs_shap": 0.011643882840871811
+  },
+  {
+    "feature": "MAND_PRISREL_YEAR",
+    "mean_abs_shap": 0.008314554579555988
+  },
+  {
+    "feature": "sex_Male",
+    "mean_abs_shap": 0.007053249515593052
+  },
+  {
+    "feature": "OFFDETAIL_9",
+    "mean_abs_shap": 0.00486329710111022
+  },
+  {
+    "feature": "state_26",
+    "mean_abs_shap": 0.004794813226908445
+  },
+  {
+    "feature": "state_21",
+    "mean_abs_shap": 0.004716532304883003
+  },
+  {
+    "feature": "OFFDETAIL_5",
+    "mean_abs_shap": 0.004303414840251207
+  },
+  {
+    "feature": "ADMTYPE_9",
+    "mean_abs_shap": 0.003517865901812911
+  },
+  {
+    "feature": "OFFDETAIL_7",
+    "mean_abs_shap": 0.0032434582244604826
+  },
+  {
+    "feature": "OFFGENERAL_3",
+    "mean_abs_shap": 0.0023176800459623337
+  },
+  {
+    "feature": "state_4",
+    "mean_abs_shap": 0.0021733292378485203
+  },
+  {
+    "feature": "state_41",
+    "mean_abs_shap": 0.0020551932975649834
+  },
+  {
+    "feature": "OFFDETAIL_4",
+    "mean_abs_shap": 0.0015704409452155232
+  }
+]

@@ -1,0 +1,42 @@
+# NIJ Georgia parole — dynamic-supervision feature track (includes supervision activity block)
+dataset:
+  name: nij
+  track: dynamic
+  paths:
+    y1: data/processed/nij_dynamic_y1.parquet
+    y2: data/processed/nij_dynamic_y2.parquet
+    y3: data/processed/nij_dynamic_y3.parquet
+
+evaluation:
+  primary_metric: brier
+  secondary_metrics: [auroc, auprc, log_loss, ece]
+  subgroup_attributes: [race, sex, age_group]
+  bootstrap:
+    enabled: true
+    n: 2000
+    seed: 1337
+
+training:
+  random_seed: 1337
+  cv_folds: 5
+  stratified: true
+
+models:
+  - name: base_rate
+    type: baseline
+  - name: logistic
+    type: logistic_regression
+    params:
+      max_iter: 2000
+  - name: xgboost
+    type: xgboost
+    params:
+      n_estimators: 800
+      learning_rate: 0.05
+      max_depth: 4
+      subsample: 0.8
+      colsample_bytree: 0.8
+
+calibration:
+  methods: [platt, isotonic]
+

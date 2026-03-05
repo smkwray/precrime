@@ -1,0 +1,105 @@
+{
+  "kind": "figure",
+  "title": "NCRP 37973 Calibration y2 logistic (platt) by sex",
+  "xaxis": "Mean Predicted Probability",
+  "yaxis": "Observed Positive Rate",
+  "traces": [
+    {
+      "type": "line",
+      "name": "Overall",
+      "x": [
+        0.07090717048477134,
+        0.10497254684237904,
+        0.22523971921181024,
+        0.3118018119328889,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.06442869057547956,
+        0.10596397598398932,
+        0.23161764705882354,
+        0.75,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Perfect",
+      "x": [
+        0.0,
+        1.0
+      ],
+      "y": [
+        0.0,
+        1.0
+      ],
+      "style": "dashed"
+    },
+    {
+      "type": "line",
+      "name": "Group Female",
+      "x": [
+        0.0689457924802882,
+        0.10389026220759058,
+        0.2316804504898366,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.048209366391184574,
+        0.08756875687568758,
+        0.1,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group Male",
+      "x": [
+        0.07125703791259805,
+        0.10512192381368525,
+        0.22499388977371762,
+        0.3118018119328889,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.06732186732186732,
+        0.10850288490737929,
+        0.2366412213740458,
+        0.75,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    }
+  ]
+}

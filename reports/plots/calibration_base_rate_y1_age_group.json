@@ -1,0 +1,245 @@
+{
+  "kind": "figure",
+  "title": "Calibration base_rate y1 by age_group",
+  "xaxis": "Mean Predicted Probability",
+  "yaxis": "Observed Positive Rate",
+  "traces": [
+    {
+      "type": "line",
+      "name": "Overall",
+      "x": [
+        NaN,
+        NaN,
+        0.29386170325951094,
+        0.3039390782792988,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        0.30359619118054915,
+        0.2902510054084038,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Perfect",
+      "x": [
+        0.0,
+        1.0
+      ],
+      "y": [
+        0.0,
+        1.0
+      ],
+      "style": "dashed"
+    },
+    {
+      "type": "line",
+      "name": "Group 18-22",
+      "x": [
+        NaN,
+        NaN,
+        0.2938659400591226,
+        0.3038965669482022,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        0.41724137931034483,
+        0.4229452054794521,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group 23-27",
+      "x": [
+        NaN,
+        NaN,
+        0.29380184029203976,
+        0.30391838689634365,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        0.37105751391465674,
+        0.3470790378006873,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group 28-32",
+      "x": [
+        NaN,
+        NaN,
+        0.29386208769389954,
+        0.30393517541255327,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        0.34648700673724736,
+        0.2895696571845368,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group 33-37",
+      "x": [
+        NaN,
+        NaN,
+        0.29395933321324397,
+        0.3038914293135831,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        0.2836593785960875,
+        0.28940986257073564,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group 38-42",
+      "x": [
+        NaN,
+        NaN,
+        0.29386864318443146,
+        0.304013526977754,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        0.2646129541864139,
+        0.2571059431524548,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group 43-47",
+      "x": [
+        NaN,
+        NaN,
+        0.2938326346832891,
+        0.3039473858282837,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        0.23712255772646537,
+        0.2650273224043716,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group 48 or older",
+      "x": [
+        NaN,
+        NaN,
+        0.29384833882478856,
+        0.30399155537003325,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        0.19330385344283008,
+        0.1824196597353497,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    }
+  ]
+}

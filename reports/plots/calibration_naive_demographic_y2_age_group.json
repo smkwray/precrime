@@ -1,0 +1,245 @@
+{
+  "kind": "figure",
+  "title": "Calibration naive_demographic y2 by age_group",
+  "xaxis": "Mean Predicted Probability",
+  "yaxis": "Observed Positive Rate",
+  "traces": [
+    {
+      "type": "line",
+      "name": "Overall",
+      "x": [
+        0.09846289722353842,
+        0.17655566295109298,
+        0.25077017510727867,
+        0.3325329305574789,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.11688311688311688,
+        0.17411225658648338,
+        0.25512260665099096,
+        0.3171707073231692,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Perfect",
+      "x": [
+        0.0,
+        1.0
+      ],
+      "y": [
+        0.0,
+        1.0
+      ],
+      "style": "dashed"
+    },
+    {
+      "type": "line",
+      "name": "Group 18-22",
+      "x": [
+        NaN,
+        0.15677895824699423,
+        0.26657967315526093,
+        0.367018163953259,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        0.19047619047619047,
+        0.4,
+        0.34959349593495936,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group 23-27",
+      "x": [
+        NaN,
+        0.17698155557645845,
+        0.26076212021800543,
+        0.33076077454347746,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        0.19101123595505617,
+        0.33766233766233766,
+        0.32570093457943927,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group 28-32",
+      "x": [
+        NaN,
+        NaN,
+        0.2692043973144332,
+        0.31805634669280475,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        0.276657060518732,
+        0.2948073701842546,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group 33-37",
+      "x": [
+        NaN,
+        0.14127217562702252,
+        0.25674201853466916,
+        0.3080739552111174,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        0.15,
+        0.25921658986175117,
+        0.2534722222222222,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group 38-42",
+      "x": [
+        NaN,
+        0.1872113670691482,
+        0.23385881234742525,
+        0.30744476707361373,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        0.17676767676767677,
+        0.23738317757009345,
+        0.27310924369747897,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group 43-47",
+      "x": [
+        NaN,
+        0.1740159263646654,
+        0.22969221773403783,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        0.22602739726027396,
+        0.21982414068745004,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group 48 or older",
+      "x": [
+        0.09846289722353842,
+        0.17760492552435161,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.11688311688311688,
+        0.17046004842615012,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    }
+  ]
+}

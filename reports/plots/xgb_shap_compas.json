@@ -1,0 +1,122 @@
+[
+  {
+    "feature": "is_violent_recid",
+    "mean_abs_shap": 0.5963581800460815
+  },
+  {
+    "feature": "priors_count",
+    "mean_abs_shap": 0.5419917702674866
+  },
+  {
+    "feature": "age",
+    "mean_abs_shap": 0.3801756501197815
+  },
+  {
+    "feature": "decile_score",
+    "mean_abs_shap": 0.27195116877555847
+  },
+  {
+    "feature": "c_charge_desc_arrest case no charge",
+    "mean_abs_shap": 0.0820017009973526
+  },
+  {
+    "feature": "sex_Female",
+    "mean_abs_shap": 0.07872287184000015
+  },
+  {
+    "feature": "v_decile_score",
+    "mean_abs_shap": 0.07599635422229767
+  },
+  {
+    "feature": "c_charge_desc_Possession of Cocaine",
+    "mean_abs_shap": 0.07308541983366013
+  },
+  {
+    "feature": "days_b_screening_arrest",
+    "mean_abs_shap": 0.070691779255867
+  },
+  {
+    "feature": "c_charge_degree_F",
+    "mean_abs_shap": 0.05884196236729622
+  },
+  {
+    "feature": "v_score_text_Medium",
+    "mean_abs_shap": 0.05493718758225441
+  },
+  {
+    "feature": "juv_other_count",
+    "mean_abs_shap": 0.0307544507086277
+  },
+  {
+    "feature": "c_charge_desc_Battery",
+    "mean_abs_shap": 0.026472384110093117
+  },
+  {
+    "feature": "score_text_Low",
+    "mean_abs_shap": 0.0263255313038826
+  },
+  {
+    "feature": "c_charge_desc_Grand Theft in the 3rd Degree",
+    "mean_abs_shap": 0.02597396820783615
+  },
+  {
+    "feature": "race_African-American",
+    "mean_abs_shap": 0.021942323073744774
+  },
+  {
+    "feature": "c_charge_desc_Burglary Conveyance Unoccup",
+    "mean_abs_shap": 0.018338190391659737
+  },
+  {
+    "feature": "juv_misd_count",
+    "mean_abs_shap": 0.01723552867770195
+  },
+  {
+    "feature": "race_Caucasian",
+    "mean_abs_shap": 0.01699143275618553
+  },
+  {
+    "feature": "age_cat_25 - 45",
+    "mean_abs_shap": 0.016277452930808067
+  },
+  {
+    "feature": "c_charge_desc_Poss Pyrrolidinovalerophenone",
+    "mean_abs_shap": 0.012884119525551796
+  },
+  {
+    "feature": "c_charge_desc_Felony Petit Theft",
+    "mean_abs_shap": 0.012385370209813118
+  },
+  {
+    "feature": "c_charge_desc_Poss3,4 Methylenedioxymethcath",
+    "mean_abs_shap": 0.011484804563224316
+  },
+  {
+    "feature": "c_charge_desc_Felony Driving While Lic Suspd",
+    "mean_abs_shap": 0.01130164135247469
+  },
+  {
+    "feature": "age_cat_Less than 25",
+    "mean_abs_shap": 0.010480391792953014
+  },
+  {
+    "feature": "c_charge_desc_Possess Cannabis/20 Grams Or Less",
+    "mean_abs_shap": 0.010317510925233364
+  },
+  {
+    "feature": "c_charge_desc_Battery on Law Enforc Officer",
+    "mean_abs_shap": 0.009898114018142223
+  },
+  {
+    "feature": "score_text_Medium",
+    "mean_abs_shap": 0.009270496666431427
+  },
+  {
+    "feature": "c_charge_desc_DUI Property Damage/Injury",
+    "mean_abs_shap": 0.008777851238846779
+  },
+  {
+    "feature": "juv_fel_count",
+    "mean_abs_shap": 0.007829608395695686
+  }
+]

@@ -1,0 +1,127 @@
+dataset: compas_propublica_two_year
+version: "2016-propublica"
+source: "https://github.com/propublica/compas-analysis"
+notes:
+  - "Schema covers fields used by this repository's COMPAS benchmark pipeline."
+  - "Source file is `data/raw/compas/compas-scores-two-years.csv`."
+  - "Pipeline applies ProPublica two-year analysis filters to produce the final sample."
+selection_filters:
+  - "days_b_screening_arrest between -30 and 30 inclusive"
+  - "is_recid != -1"
+  - "c_charge_degree != O"
+  - "score_text != N/A"
+fields:
+  - position: 1
+    name: id
+    type: integer_identifier
+    family: id
+    description: Unique person/case identifier in the released COMPAS dataset.
+    missing_value_encoding: none
+  - position: 2
+    name: sex
+    type: categorical_binary
+    family: sensitive
+    description: Recorded sex.
+    missing_value_encoding: none
+  - position: 3
+    name: race
+    type: categorical_nominal
+    family: sensitive
+    description: Recorded race category.
+    missing_value_encoding: none
+  - position: 4
+    name: age
+    type: integer
+    family: static_case
+    description: Age in years at COMPAS screening.
+    missing_value_encoding: none
+  - position: 5
+    name: age_cat
+    type: categorical_ordinal
+    family: static_case
+    description: Age bin used in ProPublica analysis.
+    missing_value_encoding: none
+  - position: 6
+    name: c_charge_degree
+    type: categorical_nominal
+    family: static_case
+    description: Current charge degree (e.g., F, M, O).
+    missing_value_encoding: none
+  - position: 7
+    name: c_charge_desc
+    type: categorical_nominal
+    family: static_case
+    description: Current charge description text.
+    missing_value_encoding: none
+  - position: 8
+    name: juv_fel_count
+    type: integer
+    family: criminal_history
+    description: Juvenile felony count.
+    missing_value_encoding: none
+  - position: 9
+    name: juv_misd_count
+    type: integer
+    family: criminal_history
+    description: Juvenile misdemeanor count.
+    missing_value_encoding: none
+  - position: 10
+    name: juv_other_count
+    type: integer
+    family: criminal_history
+    description: Other juvenile count.
+    missing_value_encoding: none
+  - position: 11
+    name: priors_count
+    type: integer
+    family: criminal_history
+    description: Prior adult criminal count.
+    missing_value_encoding: none
+  - position: 12
+    name: days_b_screening_arrest
+    type: integer
+    family: filter_control
+    description: Days between arrest and COMPAS screening.
+    missing_value_encoding: non-empty numeric; keep rows in [-30, 30]
+  - position: 13
+    name: decile_score
+    type: integer
+    family: compas_score
+    description: General COMPAS decile score.
+    missing_value_encoding: none
+  - position: 14
+    name: score_text
+    type: categorical_ordinal
+    family: compas_score
+    description: General COMPAS risk band (Low/Medium/High/N/A).
+    missing_value_encoding: N/A rows excluded in analysis filter
+  - position: 15
+    name: v_decile_score
+    type: integer
+    family: compas_score
+    description: Violent COMPAS decile score.
+    missing_value_encoding: none
+  - position: 16
+    name: v_score_text
+    type: categorical_ordinal
+    family: compas_score
+    description: Violent COMPAS risk band.
+    missing_value_encoding: none
+  - position: 17
+    name: is_recid
+    type: integer
+    family: analysis_flag
+    description: Recidivism availability flag used in ProPublica filter (-1 means unavailable).
+    missing_value_encoding: -1 rows excluded in analysis filter
+  - position: 18
+    name: is_violent_recid
+    type: integer
+    family: outcome_aux
+    description: Violent recidivism indicator.
+    missing_value_encoding: none
+  - position: 19
+    name: two_year_recid
+    type: target_binary
+    family: target
+    description: Two-year general recidivism outcome.
+    missing_value_encoding: none

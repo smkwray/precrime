@@ -1,0 +1,133 @@
+{
+  "kind": "figure",
+  "title": "COMPAS Calibration base_rate (platt) by age_group",
+  "xaxis": "Mean Predicted Probability",
+  "yaxis": "Observed Positive Rate",
+  "traces": [
+    {
+      "type": "line",
+      "name": "Overall",
+      "x": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.4551084708838841,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.4551198963058976,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Perfect",
+      "x": [
+        0.0,
+        1.0
+      ],
+      "y": [
+        0.0,
+        1.0
+      ],
+      "style": "dashed"
+    },
+    {
+      "type": "line",
+      "name": "Group 25 - 45",
+      "x": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.45510921038451596,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.4646092865232163,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group Greater than 45",
+      "x": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.4551072664406094,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.32018561484918795,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group Less than 25",
+      "x": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.45510768798033735,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.5597624350408315,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    }
+  ]
+}

@@ -1,0 +1,379 @@
+dataset: nij_recidivism_forecasting_challenge
+version: "2021-03-29"
+source: "https://nij.ojp.gov/funding/recidivism-forecasting-challenge"
+notes:
+  - "Canonical field definitions come from NIJ Appendix 2 codebook."
+  - "This schema keys on CSV column names used in NIJ training/test files."
+  - "Columns `_v1`..`_v4` are retained as-is and mapped via `canonical_name`."
+fields:
+  - position: 1
+    name: ID
+    canonical_name: ID
+    type: integer_identifier
+    family: id
+    description: Unique person ID.
+    missing_value_encoding: none
+  - position: 2
+    name: Gender
+    canonical_name: Gender
+    type: categorical_binary
+    family: sensitive
+    description: Gender (M/F).
+    missing_value_encoding: none
+  - position: 3
+    name: Race
+    canonical_name: Race
+    type: categorical_binary
+    family: sensitive
+    description: Race (Black or White in challenge sample).
+    missing_value_encoding: none
+  - position: 4
+    name: Age_at_Release
+    canonical_name: Age_at_Release
+    type: ordinal_category
+    family: sensitive
+    description: Age group at prison release.
+    missing_value_encoding: none
+  - position: 5
+    name: Residence_PUMA
+    canonical_name: Residence_PUMA
+    type: categorical_code
+    family: static_release
+    description: Combined U.S. Census PUMA group at prison release.
+    missing_value_encoding: none
+  - position: 6
+    name: Gang_Affiliated
+    canonical_name: Gang_Affiliated
+    type: categorical_binary
+    family: static_release
+    description: Verified gang affiliation.
+    missing_value_encoding: blank string = missing/unknown
+  - position: 7
+    name: Supervision_Risk_Score_First
+    canonical_name: Supervision_Risk_Score_First
+    type: ordinal_integer
+    family: static_release
+    description: First parole supervision risk score (1-10, lower is lower risk).
+    missing_value_encoding: blank string = missing
+  - position: 8
+    name: Supervision_Level_First
+    canonical_name: Supervision_Level_First
+    type: categorical_nominal
+    family: static_release
+    description: First supervision level assignment (Standard/High/Specialized).
+    missing_value_encoding: blank string = missing
+  - position: 9
+    name: Education_Level
+    canonical_name: Education_Level
+    type: ordinal_category
+    family: static_release
+    description: Education grade level at prison entry.
+    missing_value_encoding: none
+  - position: 10
+    name: Dependents
+    canonical_name: Dependents
+    type: ordinal_category
+    family: static_release
+    description: Number of dependents at prison entry.
+    missing_value_encoding: none
+  - position: 11
+    name: Prison_Offense
+    canonical_name: Prison_Offense
+    type: categorical_nominal
+    family: static_release
+    description: Primary prison conviction offense group.
+    missing_value_encoding: blank string = missing
+  - position: 12
+    name: Prison_Years
+    canonical_name: Prison_Years
+    type: ordinal_category
+    family: static_release
+    description: Years in prison before parole release.
+    missing_value_encoding: none
+  - position: 13
+    name: Prior_Arrest_Episodes_Felony
+    canonical_name: Prior_Arrest_Episodes_Felony
+    type: ordinal_count_bin
+    family: static_release
+    description: Number of prior arrest episodes with most serious charge felony.
+    missing_value_encoding: none
+  - position: 14
+    name: Prior_Arrest_Episodes_Misd
+    canonical_name: Prior_Arrest_Episodes_Misdemeanor
+    type: ordinal_count_bin
+    family: static_release
+    description: Number of prior arrest episodes with most serious charge misdemeanor.
+    missing_value_encoding: none
+  - position: 15
+    name: Prior_Arrest_Episodes_Violent
+    canonical_name: Prior_Arrest_Episodes_Violent
+    type: ordinal_count_bin
+    family: static_release
+    description: Number of prior arrest episodes with most serious charge violent.
+    missing_value_encoding: none
+  - position: 16
+    name: Prior_Arrest_Episodes_Property
+    canonical_name: Prior_Arrest_Episodes_Property
+    type: ordinal_count_bin
+    family: static_release
+    description: Number of prior arrest episodes with most serious charge property.
+    missing_value_encoding: none
+  - position: 17
+    name: Prior_Arrest_Episodes_Drug
+    canonical_name: Prior_Arrest_Episodes_Drug
+    type: ordinal_count_bin
+    family: static_release
+    description: Number of prior arrest episodes with most serious charge drug.
+    missing_value_encoding: none
+  - position: 18
+    name: _v1
+    canonical_name: Prior_Arrest_Episodes_PPViolationCharges
+    type: ordinal_count_bin
+    family: static_release
+    description: Number of prior arrest episodes with probation/parole violation charges.
+    missing_value_encoding: none
+  - position: 19
+    name: Prior_Arrest_Episodes_DVCharges
+    canonical_name: Prior_Arrest_Episodes_DomesticViolenceCharges
+    type: categorical_binary
+    family: static_release
+    description: Any prior arrest episodes with domestic violence charges.
+    missing_value_encoding: none
+  - position: 20
+    name: Prior_Arrest_Episodes_GunCharges
+    canonical_name: Prior_Arrest_Episodes_GunCharges
+    type: categorical_binary
+    family: static_release
+    description: Any prior arrest episodes with gun charges.
+    missing_value_encoding: none
+  - position: 21
+    name: Prior_Conviction_Episodes_Felony
+    canonical_name: Prior_Conviction_Episodes_Felony
+    type: ordinal_count_bin
+    family: static_release
+    description: Number of prior felony conviction episodes.
+    missing_value_encoding: none
+  - position: 22
+    name: Prior_Conviction_Episodes_Misd
+    canonical_name: Prior_Conviction_Episodes_Misdemeanor
+    type: ordinal_count_bin
+    family: static_release
+    description: Number of prior conviction episodes with most serious charge misdemeanor.
+    missing_value_encoding: none
+  - position: 23
+    name: Prior_Conviction_Episodes_Viol
+    canonical_name: Prior_Conviction_Episodes_Violent
+    type: categorical_binary
+    family: static_release
+    description: Any prior conviction episodes with most serious charge violent.
+    missing_value_encoding: none
+  - position: 24
+    name: Prior_Conviction_Episodes_Prop
+    canonical_name: Prior_Conviction_Episodes_Property
+    type: ordinal_count_bin
+    family: static_release
+    description: Number of prior conviction episodes with most serious charge property.
+    missing_value_encoding: none
+  - position: 25
+    name: Prior_Conviction_Episodes_Drug
+    canonical_name: Prior_Conviction_Episodes_Drug
+    type: ordinal_count_bin
+    family: static_release
+    description: Number of prior conviction episodes with most serious charge drug.
+    missing_value_encoding: none
+  - position: 26
+    name: _v2
+    canonical_name: Prior_Conviction_Episodes_PPViolationCharges
+    type: categorical_binary
+    family: static_release
+    description: Any prior conviction episodes with probation/parole violation charges.
+    missing_value_encoding: none
+  - position: 27
+    name: _v3
+    canonical_name: Prior_Conviction_Episodes_DomesticViolenceCharges
+    type: categorical_binary
+    family: static_release
+    description: Any prior conviction episodes with domestic violence charges.
+    missing_value_encoding: none
+  - position: 28
+    name: _v4
+    canonical_name: Prior_Conviction_Episodes_GunCharges
+    type: categorical_binary
+    family: static_release
+    description: Any prior conviction episodes with gun charges.
+    missing_value_encoding: none
+  - position: 29
+    name: Prior_Revocations_Parole
+    canonical_name: Prior_Revocations_Parole
+    type: categorical_binary
+    family: static_release
+    description: Any prior parole revocations.
+    missing_value_encoding: none
+  - position: 30
+    name: Prior_Revocations_Probation
+    canonical_name: Prior_Revocations_Probation
+    type: categorical_binary
+    family: static_release
+    description: Any prior probation revocations.
+    missing_value_encoding: none
+  - position: 31
+    name: Condition_MH_SA
+    canonical_name: Condition_MH_SA
+    type: categorical_binary
+    family: static_release
+    description: Parole condition for mental health or substance abuse programming.
+    missing_value_encoding: none
+  - position: 32
+    name: Condition_Cog_Ed
+    canonical_name: Condition_Cog_Ed
+    type: categorical_binary
+    family: static_release
+    description: Parole condition for cognitive skills or education programming.
+    missing_value_encoding: none
+  - position: 33
+    name: Condition_Other
+    canonical_name: Condition_Other
+    type: categorical_binary
+    family: static_release
+    description: Other parole condition category (victim contact/electronic monitoring/restitution/sex offender condition).
+    missing_value_encoding: none
+  - position: 34
+    name: Violations_ElectronicMonitoring
+    canonical_name: Violations_ElectronicMonitoring
+    type: categorical_binary
+    family: dynamic_supervision
+    description: Any supervision violation for electronic monitoring.
+    missing_value_encoding: none
+  - position: 35
+    name: Violations_Instruction
+    canonical_name: Violations_InstructionsNotFollowed
+    type: categorical_binary
+    family: dynamic_supervision
+    description: Any supervision violation for not following instructions.
+    missing_value_encoding: none
+  - position: 36
+    name: Violations_FailToReport
+    canonical_name: Violations_FailToReport
+    type: categorical_binary
+    family: dynamic_supervision
+    description: Any supervision violation for failing to report.
+    missing_value_encoding: none
+  - position: 37
+    name: Violations_MoveWithoutPermission
+    canonical_name: Violations_MoveWithoutPermission
+    type: categorical_binary
+    family: dynamic_supervision
+    description: Any supervision violation for moving without permission.
+    missing_value_encoding: none
+  - position: 38
+    name: Delinquency_Reports
+    canonical_name: Delinquency_Reports
+    type: ordinal_count_bin
+    family: dynamic_supervision
+    description: Number of parole delinquency reports.
+    missing_value_encoding: none
+  - position: 39
+    name: Program_Attendances
+    canonical_name: Program_Attendances
+    type: ordinal_count_bin
+    family: dynamic_supervision
+    description: Number of program attendances while supervised.
+    missing_value_encoding: none
+  - position: 40
+    name: Program_UnexcusedAbsences
+    canonical_name: Program_UnexcusedAbsences
+    type: ordinal_count_bin
+    family: dynamic_supervision
+    description: Number of unexcused program absences while supervised.
+    missing_value_encoding: none
+  - position: 41
+    name: Residence_Changes
+    canonical_name: Residence_Changes
+    type: ordinal_count_bin
+    family: dynamic_supervision
+    description: Number of residence changes during parole.
+    missing_value_encoding: none
+  - position: 42
+    name: Avg_Days_per_DrugTest
+    canonical_name: Avg_Days_per_DrugTest
+    type: continuous_float
+    family: dynamic_supervision
+    description: Average days between drug tests while supervised.
+    missing_value_encoding: blank string = missing (typically no drug-test history observed)
+  - position: 43
+    name: DrugTests_THC_Positive
+    canonical_name: DrugTests_THC_Positive
+    type: continuous_proportion
+    family: dynamic_supervision
+    description: Proportion of drug tests positive for THC/marijuana.
+    missing_value_encoding: blank string = missing (typically no drug-test history observed)
+  - position: 44
+    name: DrugTests_Cocaine_Positive
+    canonical_name: DrugTests_Cocaine_Positive
+    type: continuous_proportion
+    family: dynamic_supervision
+    description: Proportion of drug tests positive for cocaine.
+    missing_value_encoding: blank string = missing (typically no drug-test history observed)
+  - position: 45
+    name: DrugTests_Meth_Positive
+    canonical_name: DrugTests_Meth_Positive
+    type: continuous_proportion
+    family: dynamic_supervision
+    description: Proportion of drug tests positive for methamphetamine.
+    missing_value_encoding: blank string = missing (typically no drug-test history observed)
+  - position: 46
+    name: DrugTests_Other_Positive
+    canonical_name: DrugTests_Other_Positive
+    type: continuous_proportion
+    family: dynamic_supervision
+    description: Proportion of drug tests positive for other drugs.
+    missing_value_encoding: blank string = missing (typically no drug-test history observed)
+  - position: 47
+    name: Percent_Days_Employed
+    canonical_name: Percent_Days_Employed
+    type: continuous_proportion
+    family: dynamic_supervision
+    description: Proportion of days employed while on parole.
+    missing_value_encoding: blank string = missing
+  - position: 48
+    name: Jobs_Per_Year
+    canonical_name: Jobs_Per_Year
+    type: continuous_float
+    family: dynamic_supervision
+    description: Jobs per year while on parole.
+    missing_value_encoding: blank string = missing
+  - position: 49
+    name: Employment_Exempt
+    canonical_name: Employment_Exempt
+    type: categorical_binary
+    family: dynamic_supervision
+    description: Employment requirement exempt status.
+    missing_value_encoding: none
+  - position: 50
+    name: Recidivism_Within_3years
+    canonical_name: Recidivism_Within_3years
+    type: target_binary
+    family: target
+    description: Any new felony/misdemeanor arrest within 3 years.
+    missing_value_encoding: none
+  - position: 51
+    name: Recidivism_Arrest_Year1
+    canonical_name: Recidivism_Arrest_Year1
+    type: target_binary
+    family: target
+    description: Recidivism arrest occurred in year 1.
+    missing_value_encoding: none
+  - position: 52
+    name: Recidivism_Arrest_Year2
+    canonical_name: Recidivism_Arrest_Year2
+    type: target_binary
+    family: target
+    description: Recidivism arrest occurred in year 2.
+    missing_value_encoding: none
+  - position: 53
+    name: Recidivism_Arrest_Year3
+    canonical_name: Recidivism_Arrest_Year3
+    type: target_binary
+    family: target
+    description: Recidivism arrest occurred in year 3.
+    missing_value_encoding: none

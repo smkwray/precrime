@@ -1,0 +1,189 @@
+{
+  "kind": "figure",
+  "title": "NCRP 37973 Calibration y2 lasso_logistic (platt) by race",
+  "xaxis": "Mean Predicted Probability",
+  "yaxis": "Observed Positive Rate",
+  "traces": [
+    {
+      "type": "line",
+      "name": "Overall",
+      "x": [
+        0.07120736265618055,
+        0.10496082081979213,
+        0.2265592607211535,
+        0.3145544235367678,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.06416112956810631,
+        0.10602744114035556,
+        0.2339622641509434,
+        0.75,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Perfect",
+      "x": [
+        0.0,
+        1.0
+      ],
+      "y": [
+        0.0,
+        1.0
+      ],
+      "style": "dashed"
+    },
+    {
+      "type": "line",
+      "name": "Group Black, non-Hispanic",
+      "x": [
+        0.07618109692809442,
+        0.10592363481287917,
+        0.22849657833540585,
+        0.3145544235367678,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.06570512820512821,
+        0.12472909349077049,
+        0.25766871165644173,
+        0.75,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group Hispanic, any race",
+      "x": [
+        0.07035589715826668,
+        0.10441741196601147,
+        0.2216934339887821,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.05326086956521739,
+        0.09654036243822076,
+        0.45454545454545453,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group Other race(s), non-Hispanic",
+      "x": [
+        0.06800973617722475,
+        0.1039288531041748,
+        0.24263578124909632,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.05172413793103448,
+        0.09206349206349207,
+        0.3333333333333333,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group Unknown",
+      "x": [
+        0.06524117202274433,
+        0.10496247657941868,
+        0.22395958200724214,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.0673758865248227,
+        0.09453146468810113,
+        0.22580645161290322,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group White, non-Hispanic",
+      "x": [
+        0.07034963098725228,
+        0.10431020169975931,
+        0.22252595899273908,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.06808943089430894,
+        0.09569203900451172,
+        0.12280701754385964,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    }
+  ]
+}

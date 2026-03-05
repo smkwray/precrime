@@ -1,0 +1,65 @@
+# ICPSR 37973 (NCRP selected variables) local ingest config.
+#
+# NCRP public-use selected-variable packages vary in which record types/keys
+# are present. This ingest expects a *release-cohort table* with an index date
+# (release) and a first-return/admission date (reincarceration) OR a single table
+# where reincarceration event dates are already present.
+#
+# If your download contains separate releases/admissions tables, you should
+# pre-join them into a release-cohort table (one row per release episode) and
+# point `tables.preferred_globs` to that file.
+
+dataset_slug: ncrp_icpsr_37973
+
+# One of: reincarceration
+label_family: reincarceration
+
+tables:
+  preferred_globs:
+    - "**/*release*cohort*.*"
+    - "**/*release*.*"
+    - "**/*.csv"
+
+# Optional: if your ICPSR package contains separate "releases" and "admissions"
+# tables (rather than a pre-linked release cohort), configure linkage below and
+# omit `columns.event_date_reincarceration`.
+linkage:
+  # Table selectors under data/raw/<dataset>/original/.
+  release_globs:
+    - "**/*release*.*"
+  admission_globs:
+    - "**/*admission*.*"
+
+  # Admission table date column (required when linkage is used).
+  admission_date: "__FILL_ME__"
+
+  # Admission person-id column (optional; defaults to columns.person_id).
+  admission_person_id: null
+
+  # Whether to allow admission dates equal to release dates.
+  allow_same_day: true
+
+dates:
+  format: null
+
+columns:
+  # Required
+  release_date: "__FILL_ME__"
+  # Required (for label_family=reincarceration)
+  event_date_reincarceration: null
+
+  # Optional IDs (recommended)
+  person_id: "__FILL_ME__"
+  episode_id: null
+
+  # Optional sensitive attributes
+  race: "__FILL_ME__"
+  sex: "__FILL_ME__"
+  ethnicity: null
+  dob: null
+  age_at_release: null
+  state: "__FILL_ME__"
+
+feature:
+  include: null
+  exclude: []

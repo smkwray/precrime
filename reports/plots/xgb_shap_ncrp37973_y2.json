@@ -1,0 +1,122 @@
+[
+  {
+    "feature": "RELEASEYR",
+    "mean_abs_shap": 0.674377977848053
+  },
+  {
+    "feature": "age_at_release",
+    "mean_abs_shap": 0.1407136619091034
+  },
+  {
+    "feature": "ADMTYPE_2",
+    "mean_abs_shap": 0.11982836574316025
+  },
+  {
+    "feature": "race_Black, non-Hispanic",
+    "mean_abs_shap": 0.0863192081451416
+  },
+  {
+    "feature": "OFFGENERAL_2",
+    "mean_abs_shap": 0.07973945885896683
+  },
+  {
+    "feature": "RELTYPE_1",
+    "mean_abs_shap": 0.07366584986448288
+  },
+  {
+    "feature": "MAND_PRISREL_YEAR",
+    "mean_abs_shap": 0.07013006508350372
+  },
+  {
+    "feature": "ADMITYR",
+    "mean_abs_shap": 0.06324303895235062
+  },
+  {
+    "feature": "age_at_admit",
+    "mean_abs_shap": 0.06031922250986099
+  },
+  {
+    "feature": "RELTYPE_2",
+    "mean_abs_shap": 0.05777139216661453
+  },
+  {
+    "feature": "PARELIG_YEAR",
+    "mean_abs_shap": 0.04648306593298912
+  },
+  {
+    "feature": "TIMESRVD",
+    "mean_abs_shap": 0.040349338203668594
+  },
+  {
+    "feature": "SENTLGTH",
+    "mean_abs_shap": 0.03923629969358444
+  },
+  {
+    "feature": "race_Hispanic, any race",
+    "mean_abs_shap": 0.03853520750999451
+  },
+  {
+    "feature": "ADMTYPE_1",
+    "mean_abs_shap": 0.032346248626708984
+  },
+  {
+    "feature": "state_13",
+    "mean_abs_shap": 0.0303412564098835
+  },
+  {
+    "feature": "OFFGENERAL_1",
+    "mean_abs_shap": 0.026967491954565048
+  },
+  {
+    "feature": "sex_Female",
+    "mean_abs_shap": 0.02677297592163086
+  },
+  {
+    "feature": "PROJ_PRISREL_YEAR",
+    "mean_abs_shap": 0.02429448999464512
+  },
+  {
+    "feature": "OFFDETAIL_8",
+    "mean_abs_shap": 0.024292025715112686
+  },
+  {
+    "feature": "race_Unknown",
+    "mean_abs_shap": 0.024034874513745308
+  },
+  {
+    "feature": "state_48",
+    "mean_abs_shap": 0.021128525957465172
+  },
+  {
+    "feature": "OFFDETAIL_3",
+    "mean_abs_shap": 0.018659772351384163
+  },
+  {
+    "feature": "OFFDETAIL_4",
+    "mean_abs_shap": 0.018241139128804207
+  },
+  {
+    "feature": "race_White, non-Hispanic",
+    "mean_abs_shap": 0.015158669091761112
+  },
+  {
+    "feature": "OFFDETAIL_1",
+    "mean_abs_shap": 0.0126771479845047
+  },
+  {
+    "feature": "state_36",
+    "mean_abs_shap": 0.011203907430171967
+  },
+  {
+    "feature": "state_17",
+    "mean_abs_shap": 0.010928492993116379
+  },
+  {
+    "feature": "state_45",
+    "mean_abs_shap": 0.009221663698554039
+  },
+  {
+    "feature": "RELTYPE_9",
+    "mean_abs_shap": 0.008806416764855385
+  }
+]

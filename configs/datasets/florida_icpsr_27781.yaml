@@ -1,0 +1,49 @@
+# ICPSR 27781 (Florida prison releases; 3-year follow-up) local ingest config.
+#
+# Fill in the `columns.*` values after downloading the ICPSR package and running:
+#   python -m src.pipelines.run_release_ingest --dataset florida_icpsr_27781 --task inspect
+#
+# This repo does NOT auto-download ICPSR packages.
+
+dataset_slug: florida_icpsr_27781
+
+# One of: rearrest | reconviction
+label_family: rearrest
+
+tables:
+  # Optional: patterns to bias table selection when multiple tabular files exist.
+  # These patterns are matched against relative paths under data/raw/<dataset>/original/.
+  preferred_globs:
+    - "**/*.dta"
+    - "**/*.csv"
+
+dates:
+  # Optional: provide a strptime-style format if dates fail to parse.
+  format: null
+
+columns:
+  # Required
+  release_date: "__FILL_ME__"
+  # Required (for label_family=rearrest)
+  event_date_rearrest: "__FILL_ME__"
+  # Optional (for label_family=reconviction)
+  event_date_reconviction: "__FILL_ME__"
+
+  # Optional IDs (strongly recommended if available)
+  person_id: "__FILL_ME__"
+  episode_id: null
+
+  # Optional sensitive attributes (used for subgroup diagnostics)
+  race: "__FILL_ME__"
+  sex: "__FILL_ME__"
+  ethnicity: null
+  dob: null
+  age_at_release: "__FILL_ME__"
+  state: null
+
+feature:
+  # Optional: explicit allowlist of feature columns (best for leakage control).
+  include: null
+  # Optional: extra denylist beyond the standard exclusions.
+  exclude: []
+

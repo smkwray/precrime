@@ -1,0 +1,122 @@
+[
+  {
+    "feature": "RELEASEYR",
+    "importance": 0.07160613685846329
+  },
+  {
+    "feature": "ADMITYR",
+    "importance": 0.039663996547460556
+  },
+  {
+    "feature": "race_Black, non-Hispanic",
+    "importance": 0.030293399468064308
+  },
+  {
+    "feature": "age_at_release",
+    "importance": 0.029505696147680283
+  },
+  {
+    "feature": "state_17",
+    "importance": 0.026786770671606064
+  },
+  {
+    "feature": "PARELIG_YEAR",
+    "importance": 0.026659727096557617
+  },
+  {
+    "feature": "race_Hispanic, any race",
+    "importance": 0.025668978691101074
+  },
+  {
+    "feature": "state_21",
+    "importance": 0.02556522563099861
+  },
+  {
+    "feature": "PROJ_PRISREL_YEAR",
+    "importance": 0.025012880563735962
+  },
+  {
+    "feature": "age_at_admit",
+    "importance": 0.023354332894086838
+  },
+  {
+    "feature": "OFFDETAIL_3",
+    "importance": 0.022806424647569656
+  },
+  {
+    "feature": "MAND_PRISREL_YEAR",
+    "importance": 0.021915137767791748
+  },
+  {
+    "feature": "ADMTYPE_2",
+    "importance": 0.021452737972140312
+  },
+  {
+    "feature": "state_1",
+    "importance": 0.02138259820640087
+  },
+  {
+    "feature": "sex_Male",
+    "importance": 0.021337704733014107
+  },
+  {
+    "feature": "TIMESRVD",
+    "importance": 0.019853200763463974
+  },
+  {
+    "feature": "state_6",
+    "importance": 0.019509660080075264
+  },
+  {
+    "feature": "OFFDETAIL_7",
+    "importance": 0.018451036885380745
+  },
+  {
+    "feature": "OFFDETAIL_9",
+    "importance": 0.018204959109425545
+  },
+  {
+    "feature": "OFFDETAIL_1",
+    "importance": 0.017930947244167328
+  },
+  {
+    "feature": "state_48",
+    "importance": 0.017427070066332817
+  },
+  {
+    "feature": "OFFDETAIL_6",
+    "importance": 0.016895802691578865
+  },
+  {
+    "feature": "sex_Female",
+    "importance": 0.016167281195521355
+  },
+  {
+    "feature": "state_13",
+    "importance": 0.015752466395497322
+  },
+  {
+    "feature": "state_26",
+    "importance": 0.015522593632340431
+  },
+  {
+    "feature": "state_42",
+    "importance": 0.0153190977871418
+  },
+  {
+    "feature": "OFFDETAIL_11",
+    "importance": 0.0150956641882658
+  },
+  {
+    "feature": "state_45",
+    "importance": 0.014363027177751064
+  },
+  {
+    "feature": "ADMTYPE_9",
+    "importance": 0.01431429386138916
+  },
+  {
+    "feature": "OFFDETAIL_10",
+    "importance": 0.014234085567295551
+  }
+]

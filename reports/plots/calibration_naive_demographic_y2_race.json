@@ -1,0 +1,105 @@
+{
+  "kind": "figure",
+  "title": "Calibration naive_demographic y2 by race",
+  "xaxis": "Mean Predicted Probability",
+  "yaxis": "Observed Positive Rate",
+  "traces": [
+    {
+      "type": "line",
+      "name": "Overall",
+      "x": [
+        0.09846289722353842,
+        0.17655566295109298,
+        0.25077017510727867,
+        0.3325329305574789,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.11688311688311688,
+        0.17411225658648338,
+        0.25512260665099096,
+        0.3171707073231692,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Perfect",
+      "x": [
+        0.0,
+        1.0
+      ],
+      "y": [
+        0.0,
+        1.0
+      ],
+      "style": "dashed"
+    },
+    {
+      "type": "line",
+      "name": "Group BLACK",
+      "x": [
+        NaN,
+        0.18271197108853196,
+        0.2467542704544652,
+        0.3449001035880505,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        NaN,
+        0.1809462915601023,
+        0.2445983379501385,
+        0.34209170530654304,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    {
+      "type": "line",
+      "name": "Group WHITE",
+      "x": [
+        0.09846289722353842,
+        0.16742915496345837,
+        0.25695507945738816,
+        0.32088017189129475,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "y": [
+        0.11688311688311688,
+        0.16398104265402844,
+        0.2713310580204778,
+        0.2936893203883495,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    }
+  ]
+}
