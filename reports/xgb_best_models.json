@@ -1,0 +1,98 @@
+{
+  "y1": {
+    "dataset": "static",
+    "horizon": "y1",
+    "model": "xgboost",
+    "calibration": "platt",
+    "seed": 42,
+    "tuning": {
+      "n_trials": 128,
+      "best_validation_brier": 0.18981478014723743,
+      "best_params": {
+        "n_estimators": 513,
+        "learning_rate": 0.01164003543702571,
+        "max_depth": 4,
+        "min_child_weight": 7.618568890915498,
+        "subsample": 0.7223530603336202,
+        "colsample_bytree": 0.8547885532198699,
+        "reg_alpha": 3.487730265674808e-06,
+        "reg_lambda": 0.007430371806792426
+      }
+    },
+    "metrics": {
+      "brier": 0.18758256397666243,
+      "auroc": 0.7016372305567392,
+      "auprc": 0.47909630893567134,
+      "log_loss": 0.5546125821101145,
+      "ece": 0.007461149984670056
+    },
+    "artifacts": {
+      "importance_plot": "reports/plots/xgb_importance_static_y1.json",
+      "shap_plot": "reports/plots/xgb_shap_static_y1.json"
+    }
+  },
+  "y2": {
+    "dataset": "dynamic",
+    "horizon": "y2",
+    "model": "xgboost",
+    "calibration": "isotonic",
+    "seed": 42,
+    "tuning": {
+      "n_trials": 128,
+      "best_validation_brier": 0.1635203359197969,
+      "best_params": {
+        "n_estimators": 451,
+        "learning_rate": 0.08539325504178107,
+        "max_depth": 3,
+        "min_child_weight": 5.674457912301169,
+        "subsample": 0.9881519219607221,
+        "colsample_bytree": 0.8064314330915191,
+        "reg_alpha": 4.186144688445978e-05,
+        "reg_lambda": 2.84728792417223
+      }
+    },
+    "metrics": {
+      "brier": 0.1724373511362113,
+      "auroc": 0.7047516913422884,
+      "auprc": 0.4264495534231073,
+      "log_loss": 0.5358925281262917,
+      "ece": 0.01714563551449167
+    },
+    "artifacts": {
+      "importance_plot": "reports/plots/xgb_importance_dynamic_y2.json",
+      "shap_plot": "reports/plots/xgb_shap_dynamic_y2.json"
+    }
+  },
+  "y3": {
+    "dataset": "dynamic",
+    "horizon": "y3",
+    "model": "xgboost",
+    "calibration": "isotonic",
+    "seed": 42,
+    "tuning": {
+      "n_trials": 128,
+      "best_validation_brier": 0.14117807688094514,
+      "best_params": {
+        "n_estimators": 215,
+        "learning_rate": 0.04437078289040974,
+        "max_depth": 3,
+        "min_child_weight": 5.714983537800621,
+        "subsample": 0.6056327714730707,
+        "colsample_bytree": 0.6108600168088393,
+        "reg_alpha": 4.750245953426665e-06,
+        "reg_lambda": 0.20895657765000936
+      }
+    },
+    "metrics": {
+      "brier": 0.14323931144941252,
+      "auroc": 0.6959418289665905,
+      "auprc": 0.3155540224862005,
+      "log_loss": 0.47159108915035597,
+      "ece": 0.012318777045047052
+    },
+    "artifacts": {
+      "importance_plot": "reports/plots/xgb_importance_dynamic_y3.json",
+      "shap_plot": "reports/plots/xgb_shap_dynamic_y3.json"
+    }
+  }
+}

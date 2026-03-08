@@ -1,5 +1,5 @@
 # Additional dependencies for FELI-0003+ (advanced modeling)
 # Install into a virtual environment outside the repo (e.g., ~/venvs/precrime)
-xgboost>=2.0,<3
-optuna>=3.6,<4
-shap>=0.44,<1
+xgboost>=2.0
+optuna>=3.6
+shap>=0.44

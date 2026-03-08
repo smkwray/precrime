@@ -1,3 +1,3 @@
 # Optional visualization dependencies (for rendering static figures)
-matplotlib>=3.8,<4
+matplotlib>=3.8
 

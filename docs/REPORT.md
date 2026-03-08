@@ -2,7 +2,7 @@
 
 ## Abstract
 
-This report describes a reproducible modeling and evaluation pipeline for predicting rearrest and reincarceration outcomes at one-, two-, and three-year horizons. The primary analysis uses the NIJ Georgia parole dataset (~18,000 individuals, rearrest label), with benchmarks on the ProPublica COMPAS dataset (~6,200 individuals, Broward County, two-year rearrest) and the NCRP national corrections dataset (~60,000 individuals, ICPSR 37973, reincarceration label). The pipeline emphasizes probability calibration (measured primarily by Brier score) over classification accuracy, applies horizon-conditioning rules to prevent information leakage across time periods, and reports subgroup fairness diagnostics by race, gender, and age. The best-performing models (Optuna-tuned XGBoost with post-hoc calibration) achieve Brier scores of 0.188, 0.172, and 0.143 for NIJ Years 1, 2, and 3 respectively — modest but consistent improvements over logistic regression baselines. COMPAS benchmark: Brier 0.173, AUROC 0.808. NCRP benchmark: Brier 0.166, AUROC 0.776 (Year 1). A model-family sweep across six model types shows that XGBoost and logistic regression are close in accuracy for Year 1, with XGBoost pulling ahead at longer horizons where dynamic supervision features contribute. Fairness diagnostics reveal subgroup disparities in error rates that persist whether or not race is included as a training feature. This is a research prototype; it is not validated for operational use in any justice-system context.
+This report describes a reproducible modeling and evaluation pipeline for predicting rearrest outcomes at one-, two-, and three-year horizons using the NIJ Georgia parole dataset. The pipeline emphasizes probability calibration (measured primarily by Brier score) over classification accuracy, applies horizon-conditioning rules to prevent information leakage across time periods, and reports subgroup fairness diagnostics by race, gender, and age. The best-performing models (Optuna-tuned XGBoost with post-hoc calibration) achieve Brier scores of 0.187, 0.172, and 0.143 for Years 1, 2, and 3 respectively — modest but consistent improvements over logistic regression baselines. A parallel benchmark on the ProPublica COMPAS dataset (Brier 0.173, AUROC 0.808) validates the evaluation harness on an independent dataset. Fairness diagnostics reveal subgroup disparities in error rates that persist whether or not race is included as a training feature. This is a research prototype; it is not validated for operational use in any justice-system context.
 
 ## Background and Motivation
 
@@ -10,7 +10,7 @@ Recidivism prediction tools are widely used in criminal justice contexts, yet th
 
 This project was motivated by three observations. First, most published work on recidivism prediction reports classification metrics (accuracy, F1) that obscure calibration quality — whether a model's 30% prediction really corresponds to a 30% observed rate. Brier score, a proper scoring rule that rewards both discrimination and calibration, is a more informative primary metric for probabilistic predictions. Second, multi-horizon prediction (Year 1, 2, 3) requires careful conditioning to avoid leakage: a Year 3 model trained on individuals who were already rearrested in Year 1 would be learning on an invalid population. Third, subgroup fairness diagnostics should be reported as a standard part of any recidivism modeling exercise, regardless of whether fairness constraints are applied during training.
 
-Throughout this report, prediction targets are **rearrest outcomes** (NIJ, COMPAS) or **reincarceration outcomes** (NCRP) — observable events in the justice system.
+Throughout this report, prediction targets are **rearrest outcomes** — observed events in the justice system.
 
 ## Data
 
@@ -26,17 +26,9 @@ After horizon conditioning, the effective sample sizes are: Year 1: 18,028; Year
 
 The ProPublica COMPAS analysis dataset from Broward County, FL serves as a benchmark case study. After standard filtering, 6,172 individuals remain with a two-year rearrest outcome label (base rate ~45.5%). This dataset is included to validate that the evaluation harness generalizes to an independent dataset with different characteristics. NIJ and COMPAS results are **not directly comparable** — they reflect different jurisdictions, time periods, populations, and label-construction processes.
 
-### NCRP (National Corrections Reporting Program)
+### Known Limitations of Both Datasets
 
-The NCRP "selected variables" extract (ICPSR 37973) provides term-level prison records across multiple states and years. The pipeline uses term records to derive a **reincarceration** (return-to-prison) label with year-granularity event timing. After deterministic ID sampling (mod 200), approximately 60,381 individuals are included for Year 1, with conditional filtering producing 42,547 for Year 2 and 38,201 for Year 3. Base rates: Y1 = 29.5%, Y2 = 10.2%, Y3 = 5.5%. Splits are grouped by person ID so no individual appears in both train and test sets.
-
-This is a different label family than NIJ or COMPAS — reincarceration captures return to prison, not rearrest. The two should not be compared directly.
-
-See [`docs/datasets/ncrp_icpsr_37973.md`](datasets/ncrp_icpsr_37973.md).
-
-### Known Limitations of All Three Datasets
-
-**Measurement bias:** Rearrest and reincarceration are influenced by policing and surveillance intensity. Subgroup differences in rates may partly reflect differential system contact rather than differential behavior. **Selection bias:** All three datasets reflect specific jurisdictions and time periods (Georgia parole cohort; Broward County pretrial; multi-state corrections) and should not be assumed to generalize. **Label ambiguity:** Rearrest ≠ reconviction ≠ reincarceration ≠ actual offending. The labels do not capture undetected behavior, nor do they account for charges that are later dismissed. NCRP's reincarceration label is narrower than rearrest — it captures only returns to prison.
+**Measurement bias:** Rearrest is influenced by policing and surveillance intensity. Subgroup differences in rearrest rates may partly reflect differential system contact rather than differential behavior. **Selection bias:** Both datasets reflect specific jurisdictions and time periods (Georgia parole cohort; Broward County pretrial) and should not be assumed to generalize. **Label ambiguity:** Rearrest ≠ reconviction ≠ actual offending. The labels do not capture undetected behavior, nor do they account for charges that are later dismissed.
 
 ## Task Definition
 
@@ -65,10 +57,6 @@ XGBoost models are trained on both static and dynamic feature tracks. The best m
 ### COMPAS Benchmark
 
 The same model suite (baselines + XGBoost with calibration variants) is applied to the COMPAS two-year sample as a harness-validation exercise.
-
-### NCRP Benchmark
-
-The same model suite is applied to the NCRP term-record-derived reincarceration label at all three horizons. Splits are grouped by person ID.
 
 ## Metrics
 
@@ -225,141 +213,6 @@ AUROC is notably higher on COMPAS (0.808) than NIJ (~0.70), likely reflecting di
 
 A separate subgroup audit for COMPAS (by `race`, `sex`, and `age_group`, with bootstrap CIs) is available in `reports/compas_fairness_report.md`. Some race subgroups are extremely small in the ProPublica sample, so per-group metrics should be treated as unstable diagnostics.
 
-### NCRP Benchmark
-
-Label: reincarceration (return to prison). Year-granularity timing. Grouped splits by person ID.
-
-| Horizon | Model | Calibration | Brier | AUROC | AUPRC | ECE |
-|---|---|---|---:|---:|---:|---:|
-| Y1 | XGBoost | raw | 0.16610 | 0.776 | 0.600 | 0.012 |
-| Y1 | XGBoost | Platt | 0.16611 | 0.776 | 0.600 | 0.012 |
-| Y1 | lasso-logistic | Platt | 0.17441 | 0.743 | 0.554 | 0.017 |
-| Y1 | base-rate | Platt | 0.20815 | 0.500 | 0.648 | 0.007 |
-| Y2 | XGBoost | Platt | 0.08780 | 0.701 | 0.201 | 0.002 |
-| Y2 | lasso-logistic | Platt | 0.08929 | 0.660 | 0.166 | 0.009 |
-| Y3 | XGBoost | raw | 0.04825 | 0.694 | 0.101 | 0.005 |
-| Y3 | lasso-logistic | Platt | 0.05132 | 0.660 | 0.090 | 0.003 |
-
-XGBoost's improvement over lasso-logistic is larger on NCRP than NIJ (Brier Δ of 0.008 for Y1, vs. 0.001 on NIJ). AUROC is also higher (0.776 vs. ~0.70), reflecting the different feature set and larger sample size. NCRP base rates drop steeply across horizons (29.5% → 10.2% → 5.5%), making Y2 and Y3 low-prevalence problems where Brier scores are compressed.
-
-Details: [`reports/ncrp_37973_terms_benchmark.md`](../reports/ncrp_37973_terms_benchmark.md).
-
-![NCRP Y1 calibration by race](figures/ncrp37973_y1_xgb_calibration_by_race.png)
-
-**Figure 11. NCRP calibration by race (Y1, XGBoost).** Different dataset and label (reincarceration vs. rearrest).
-
-![NCRP Y1 SHAP top factors](figures/ncrp37973_y1_xgb_shap_top10.png)
-
-**Figure 12. NCRP top predictive factors (SHAP, Y1).** Release type (unconditional vs. conditional), admission type (parole revocation), and state (California) dominate. These reflect system-level variables more than individual characteristics — a different pattern from NIJ.
-
-### Model-Family Sweep (NIJ)
-
-A sweep across six model families (logistic regression, lasso, XGBoost, HistGradientBoosting, random forest, extra trees) on the NIJ data reveals how rankings shift depending on the metric.
-
-Best by sex-average Brier (lower is better):
-- **Y1:** logistic regression (Platt) — 0.16754
-- **Y2:** XGBoost (isotonic) — 0.16173
-- **Y3:** HistGradientBoosting (isotonic) — 0.12640
-
-Best by FairAcc (NIJ-style accuracy × parity index, higher is better):
-- **Y1:** logistic regression (raw) — 0.83171
-- **Y2:** HistGradientBoosting (isotonic) — 0.83604
-- **Y3:** HistGradientBoosting (isotonic) — 0.87360
-
-For Year 1, logistic regression slightly outperforms XGBoost on sex-average Brier (0.16754 vs. 0.16829). At longer horizons, tree-based models pull ahead. The margins between model families are small throughout — the biggest spread across all models and calibrations for Y1 is 0.005 in sex-average Brier.
-
-Full tables: [`reports/model_sweep.md`](../reports/model_sweep.md).
-
-### Seed-Ensemble Evaluation
-
-Averaging predicted probabilities across five model seeds (42–46) on the same data split produces no meaningful improvement:
-
-| Horizon | Single-Seed Brier | Ensemble Brier | Δ |
-|---|---:|---:|---:|
-| Y1 (static) | 0.16829 | 0.16838 | +0.00009 |
-| Y2 (dynamic) | 0.16173 | 0.16154 | −0.00019 |
-| Y3 (dynamic) | 0.12675 | 0.12676 | +0.00001 |
-
-The ensemble's AUROC is marginally better on Y2 (0.708 vs. 0.701) but differences are negligible. Model seed variance is not a meaningful source of error on this dataset.
-
-Details: [`reports/ensemble_eval.md`](../reports/ensemble_eval.md).
-
-### Predictive Factors (SHAP) and Unadjusted Rate Tables
-
-SHAP values identify which features influence predictions; unadjusted rate tables show raw outcome rates by subgroup.
-
-**NIJ Year 1 — top factors by mean |SHAP|:**
-
-| Rank | Factor | Mean \|SHAP\| |
-|---:|---|---:|
-| 1 | Gang affiliation | 0.163 |
-| 2 | No prior violation-arrest episodes | 0.114 |
-| 3 | Age 23–27 | 0.106 |
-| 4 | Supervision risk score | 0.100 |
-| 5 | Age 48+ | 0.092 |
-
-**NCRP Year 1 — top factors by mean |SHAP|:**
-
-| Rank | Factor | Mean \|SHAP\| |
-|---:|---|---:|
-| 1 | Release year | 0.308 |
-| 2 | Unconditional release (max-out) | 0.308 |
-| 3 | Parole revocation admission | 0.231 |
-| 4 | State: California | 0.213 |
-| 5 | Time served (months) | 0.168 |
-
-NIJ's top factors are individual-level (gang affiliation, age, criminal history). NCRP's are system-level (release type, admission type, state). This reflects the different feature sets and the dominance of administrative variables in NCRP's public-use extract.
-
-Full factor tables and unadjusted rate breakdowns for all horizons and datasets: [`reports/nij_predictive_factors.md`](../reports/nij_predictive_factors.md), [`reports/compas_predictive_factors.md`](../reports/compas_predictive_factors.md), [`reports/ncrp_37973_predictive_factors.md`](../reports/ncrp_37973_predictive_factors.md).
-
-### Lowest-Rate Trait Profiles
-
-Traits associated with the lowest observed rearrest/reincarceration rates across all three datasets:
-
-| Dataset | Base Rate | Lowest-Rate Trait | Observed Rate | Δ from Base |
-|---|---:|---|---:|---:|
-| NIJ (Y1) | 29.8% | Age 48+ | 18.9% | −10.9 pp |
-| COMPAS | 45.5% | 0 prior offenses | 28.6% | −16.9 pp |
-| NCRP (Y1) | 29.5% | Time served 5+ years | 10.9% | −18.6 pp |
-
-Cross-dataset patterns: older age (3/3 datasets), zero/minimal prior record (3/3), and lower risk classification (2/3) are consistently associated with lower rates. Female sex (2/3) and longer incarceration (2/3) also appear. These are raw rates, not adjusted for confounders.
-
-Details: [`reports/lowest_rearrest_traits.md`](../reports/lowest_rearrest_traits.md).
-
-### Individual Prediction Analysis
-
-Examining the tails of the prediction distribution on the held-out test set:
-
-**Lowest-predicted individuals (bottom 5%):**
-
-| Dataset | Cutoff | N | Actual Rate | Pred Mean | Pred Min |
-|---|---:|---:|---:|---:|---:|
-| NIJ Y1 | p ≤ 0.081 | 181 | 5.5% | 0.064 | 0.026 |
-| COMPAS | p ≤ 0.117 | 62 | 12.9% | 0.101 | 0.063 |
-| NCRP Y1 | p ≤ 0.059 | 715 | 2.5% | 0.031 | 0.000 |
-
-NIJ bottom-1% (p ≤ 0.054, N=37): none were rearrested. Profile: 60% age 48+, 100% no gang affiliation, 68% prison >3 years, 67% sex offense, 81% white.
-
-**Worst false negatives** (rearrested, model predicted low):
-
-| Dataset | N | Pred Mean | Key Pattern |
-|---|---:|---:|---|
-| NIJ Y1 | 53 | 0.106 | 30% age 48+, 100% no gang, 62% zero property arrests |
-| COMPAS | 28 | 0.129 | 100% low COMPAS score, 79% zero priors |
-| NCRP Y1 | 181 | 0.105 | 100% age <25, 76% new commitment |
-
-**Worst false positives** (not rearrested, model predicted high):
-
-| Dataset | N | Pred Mean | Key Pattern |
-|---|---:|---:|---|
-| NIJ Y1 | 126 | 0.569 | 71% gang-affiliated, 100% male, 84% age <33 |
-| COMPAS | 33 | 0.781 | 79% African-American, 94% male, 85% felony |
-| NCRP Y1 | 424 | 0.697 | 95% male, parole-revocation admissions, property offenses |
-
-The false negatives look like low-risk profiles by all observable features — these are cases where the available features simply don't predict the outcome. The false positives concentrate in high-risk demographic profiles but did not reoffend within the observation window.
-
-Details: [`reports/individual_analysis.md`](../reports/individual_analysis.md).
-
 ## Fairness and Subgroup Diagnostics
 
 ### Approach
@@ -369,7 +222,6 @@ For each horizon's best XGBoost model, the pipeline retrains two variants: one *
 Subgroup availability in the processed datasets:
 - **NIJ:** `Race ∈ {BLACK, WHITE}` and `Gender ∈ {M, F}` (no missing values in the processed parquets).
 - **COMPAS:** `race ∈ {African-American, Caucasian, Hispanic, Other, Asian, Native American}` and `sex ∈ {Male, Female}`.
-- **NCRP:** `race ∈ {White non-Hispanic, Black non-Hispanic, Hispanic, Other, Unknown}` and `sex ∈ {Male, Female}`.
 
 ### Year 1 (Static, Platt) — Race
 
@@ -415,49 +267,24 @@ Gender gaps are larger than race gaps at the 0.5 threshold. The female subgroup 
 
 Age group disparities are the most pronounced. The youngest group (18–22) has an FPR of 0.205 and a selection rate of 0.306, while the oldest group (48+) has an FPR of 0.000 and a selection rate of 0.000 at the 0.5 threshold.
 
-### NCRP Subgroup Diagnostics
-
-NCRP Year 1 per-group Brier scores:
-
-| Subgroup | Group | N | Brier | AUROC |
-|---|---|---:|---:|---:|
-| Race | White, non-Hispanic | 4,399 | 0.164 | 0.783 |
-| Race | Black, non-Hispanic | 4,298 | 0.177 | 0.760 |
-| Race | Hispanic | 2,004 | 0.167 | 0.763 |
-| Sex | Male | 10,719 | 0.169 | 0.773 |
-| Sex | Female | 1,385 | 0.156 | 0.756 |
-
-At t=0.5 (Y1): FPR ranges from 0.035 (Unknown) to 0.099 (Hispanic). FNR ranges from 0.500 (Other) to 0.788 (Unknown). The max FPR gap across all thresholds is 0.137 (race) and 0.140 (sex). The max FNR gap across all thresholds is 0.302 (race) and 0.162 (sex).
-
-For Y2 and Y3, NCRP base rates are low enough (10.2%, 5.5%) that the model never predicts above 0.5 for any individual — all threshold-dependent metrics at t=0.5 degenerate (FNR = 1.0, selection rate = 0.0). Lower thresholds are required for meaningful classification on these horizons.
-
-The pattern across datasets: the Black subgroup has a higher Brier score (worse accuracy) than the White subgroup on all three datasets — NIJ (0.195 vs. 0.177), COMPAS (see `reports/compas_fairness_report.md`), NCRP (0.177 vs. 0.164).
-
-Full NCRP subgroup tables with bootstrap CIs: [`reports/ncrp_37973_fairness_report.md`](../reports/ncrp_37973_fairness_report.md).
-
 ### Note on Thresholds
 
 The threshold of 0.5 is illustrative. Different thresholds produce substantially different disparity profiles (see threshold sweep data in `reports/fairness_report.md`). The "with race" vs. "without race" comparison is informative but limited — removing a single feature does not eliminate correlations between other features and group membership.
 
 ## Limitations
 
-1. **Labels are rearrest or reincarceration outcomes** — observable events in the justice system, not comprehensive measures of behavior.
-2. **Specific jurisdictions and cohorts.** NIJ: Georgia parole. COMPAS: Broward County pretrial. NCRP: multi-state corrections (participation varies by state/year).
+1. **Labels are rearrest outcomes** — an observable event in the justice system, not a comprehensive measure of behavior.
+2. **Single jurisdiction, single cohort.** The NIJ data comes from one Georgia parole cohort. The COMPAS benchmark is a separate Broward County population.
 3. **No causal claims.** Feature importance (SHAP values, XGBoost gain) reflects statistical association, not causal influence.
 4. **Threshold dependence.** All classification-based fairness metrics depend on the threshold chosen. The 0.5 threshold used in the fairness report is illustrative.
-5. **Modest improvements over baselines.** XGBoost's Brier improvement over lasso-logistic is real but small on NIJ (0.001–0.006). Gains are larger on NCRP (0.008 for Y1).
+5. **Modest improvements over baselines.** XGBoost's Brier improvement over lasso-logistic is real but small (0.001–0.006).
 6. **No external validation.** All results are from a single seeded train/test split (seed 42). The NIJ challenge test sets are not used for final evaluation in this pipeline.
 
 ## Reproducibility
 
 ### Obtaining Data
 
-Datasets must be obtained from their original sources:
-- **NIJ:** Available through the NIJ Recidivism Forecasting Challenge materials. Place under `data/raw/nij/`.
-- **COMPAS:** Available from ProPublica's GitHub repository. Place under `data/raw/compas/`.
-- **NCRP:** ICPSR 37973, requires ICPSR account and data use agreement. Place under `data/raw/ncrp_icpsr_37973/original/`.
-
-File structure details are in the dataset cards: [`docs/dataset_card_nij.md`](dataset_card_nij.md), [`docs/dataset_card_compas.md`](dataset_card_compas.md), [`docs/datasets/ncrp_icpsr_37973.md`](datasets/ncrp_icpsr_37973.md).
+Datasets must be obtained from their original sources. The NIJ Georgia parole dataset is available through the NIJ Recidivism Forecasting Challenge materials. The COMPAS dataset is available from ProPublica's GitHub repository. Place files under `data/raw/nij/` and `data/raw/compas/` respectively, following the structure described in the dataset cards.
 
 **Data is not included in this repository.**
 
@@ -469,37 +296,28 @@ python -m venv ~/venvs/precrime
 source ~/venvs/precrime/bin/activate
 pip install -r requirements.txt
 pip install -r requirements-modeling.txt
-pip install -r requirements-viz.txt  # optional, for rendering figures
 
 # Tests (verify environment and leakage guards)
 make test
 
-# NIJ pipeline
+# Full pipeline
 make nij-baselines
 make nij-xgb TRIALS=32
-make nij-factors
-
-# COMPAS benchmark
 make compas TRIALS=32
-
-# NCRP benchmark (requires ICPSR data)
-make ncrp-37973-terms-process
-make ncrp-37973-terms-benchmark
-make ncrp-37973-terms-fairness
-
-# Fairness audits
 make fairness BOOTSTRAP=2000 BOOTSTRAP_SUBGROUP=200
-make compas-fairness
-
-# Additional analyses
-make model-sweep
-make stability
-make operational
 
 # Generate static figures (requires reports to exist)
 make figures
 ```
 
-### Data Governance
+For heavy tuning runs, an optional remote-execution script syncs the repo to a configurable remote host, runs jobs with thread caps, and syncs reports back. See `scripts/remote_heavy_refresh.sh` and the README for details.
+
+### Public Export
+
+To produce a shareable package (code + docs + aggregate reports, no row-level data):
+
+```bash
+bash scripts/build_public_export.sh
+```
 
 See [PUBLISHING.md](PUBLISHING.md) for data-governance guidance and a pre-publication checklist.

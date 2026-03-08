@@ -1,28 +1,33 @@
 .DS_Store
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .ipynb_checkpoints/
+
+# Policy: never create repo-local venvs
 .venv*/
 .venv*
-.env
-.env.*
 
-# Never commit row-level datasets
-/data/
-*.csv
-*.parquet
-*.pkl
-*.joblib
-*.h5
-*.model
+# Row-level datasets (do not commit)
+data/raw/
+data/processed/
 
-# Logs
+# Generated exports (use as its own repo if desired)
+public_export/
+
+# Internal working directories
+_backups/
+do/
+output/
+docs/opus_publishing_prompt.md
+docs/public_export_template.md
+docs/START_HERE.md
+
+# Local logs
 remote_logs/
 *.log
 
-# OS metadata
-Thumbs.db
-Desktop.ini

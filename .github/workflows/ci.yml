@@ -32,7 +32,5 @@ jobs:
           make test
 
       - name: Export preflight (repo must be publish-safe)
-        env:
-          PREFLIGHT_USER_PATTERN: "shanewray|wray7830"
         run: |
           bash scripts/preflight_public_export.sh .

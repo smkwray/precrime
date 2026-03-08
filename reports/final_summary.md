@@ -6,7 +6,7 @@ Generated: 2026-03-01
 This project builds a **reproducible research pipeline** that predicts **rearrest outcomes** at multiple horizons on the NIJ Georgia parole data and produces:
 - Calibrated probability outputs
 - Subgroup performance and fairness diagnostics
-- COMPAS (ProPublica) and NCRP (national corrections) benchmark runs using the same evaluation harness
+- A COMPAS (ProPublica) benchmark run using the same evaluation harness
 
 ## Core guardrails
 - No horizon leakage: Year 2 and Year 3 tasks are conditioned on prior non-recidivists and feature families enforce static vs dynamic policies.
@@ -23,15 +23,6 @@ This project builds a **reproducible research pipeline** that predicts **rearres
 
 ### COMPAS (ProPublica benchmark)
 - Benchmark report: `reports/compas_benchmark.md`
-- Fairness audit: `reports/compas_fairness_report.md`
-
-### NCRP (ICPSR 37973, national corrections)
-- Benchmark report: `reports/ncrp_37973_terms_benchmark.md`
-- Fairness audit: `reports/ncrp_37973_fairness_report.md`
-
-### Cross-dataset
-- Lowest-rearrest trait profiles: `reports/lowest_rearrest_traits.md`
-- Individual prediction analysis (lowest predicted, worst errors): `reports/individual_analysis.md`
 
 ## Publish-ready interpretation highlights
 
@@ -55,6 +46,26 @@ From `reports/stability_eval.md`:
 
 Interpretation: aggregate performance is fairly stable in this 3-seed check; subgroup disparity estimates are less stable and should be treated as uncertainty-aware diagnostics, not fixed constants.
 
+<details>
+<summary><strong>Run metadata (internal)</strong></summary>
+
+## Refresh status (2026-03-01)
+- NIJ XGBoost rerun completed with `--xgb-trials 32` and refreshed:
+  - `reports/xgb_leaderboard.md`
+  - `reports/xgb_best_models.json`
+- NIJ fairness rerun completed with:
+  - `PRECRIME_FAIRNESS_BOOTSTRAP=2000`
+  - `PRECRIME_FAIRNESS_BOOTSTRAP_SUBGROUP=200`
+  - refreshed `reports/fairness_report.md`
+- COMPAS rerun completed with `--xgb-trials 32` and refreshed `reports/compas_benchmark.md`.
+- Remote reruns applied thread-cap policy: `PRECRIME_N_JOBS=8` per concurrent job (two concurrent jobs, effective cap `16`).
+
+### Data products
+- NIJ processed parquets (static/dynamic × Y1/Y2/Y3): `data/processed/nij_*.parquet` (local-only; **not included in public export**)
+- COMPAS processed parquet: `data/processed/compas_2yr.parquet` (local-only; **not included in public export**)
+
+</details>
+
 ## How to reproduce
 Use the shared venv (never create `.venv*` inside repo):
 1. `python -m venv ~/venvs/precrime`
@@ -71,6 +82,7 @@ Use the shared venv (never create `.venv*` inside repo):
 
 ### Convenience entrypoints
 - Local rebuild via Make targets: `make test`, `make nij-xgb TRIALS=32`, `make compas TRIALS=32`, `make fairness BOOTSTRAP=2000 BOOTSTRAP_SUBGROUP=200`
+- Remote heavy refresh (rsync → run → rsync back): `make remote-refresh TRIALS=32 N_JOBS_PER_JOB=8 BOOTSTRAP=2000 BOOTSTRAP_SUBGROUP=200`
 
 ## Notes / limitations (non-exhaustive)
 - Rearrest is influenced by policing and supervision intensity; subgroup disparities can reflect system dynamics, not “risk.”

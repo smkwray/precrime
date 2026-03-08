@@ -6,6 +6,7 @@ OUT_DIR="${1:-${ROOT_DIR}/public_export}"
 
 if [ ! -d "${OUT_DIR}" ]; then
   echo "[preflight] missing export dir: ${OUT_DIR}"
+  echo "[preflight] run: bash scripts/build_public_export.sh"
   exit 2
 fi
 
@@ -47,9 +48,7 @@ if [ -s "${tmp}" ]; then
 fi
 
 # Flag explicit usernames and explicit IPv4 addresses (avoid false positives on values like 1e-3 or 10.0).
-# Override with PREFLIGHT_USER_PATTERN env var if your username differs.
-PREFLIGHT_USER_PATTERN="${PREFLIGHT_USER_PATTERN:-your-username-here@}"
-rg -n "${PREFLIGHT_USER_PATTERN}" "${OUT_DIR}" \
+rg -n "shanewray@" "${OUT_DIR}" \
   --glob '!**/docs/PUBLISHING.md' \
   --glob '!**/scripts/preflight_public_export.sh' >"${tmp}" || true
 if [ -s "${tmp}" ]; then

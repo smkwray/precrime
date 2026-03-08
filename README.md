@@ -1,8 +1,6 @@
 # precrime
 
-[![CI](https://github.com/smkwray/precrime/actions/workflows/ci.yml/badge.svg)](https://github.com/smkwray/precrime/actions/workflows/ci.yml)
-
-A reproducible research prototype for multi-horizon rearrest prediction, with calibrated probability outputs and subgroup fairness diagnostics. Primary analysis uses the NIJ Georgia parole dataset, with additional analyses on COMPAS (Broward County) and NCRP (national corrections data). Labels are rearrest or reincarceration outcome labels (often used as proxies for recidivism). This is a research pipeline — not validated for operational use.
+A reproducible research prototype for multi-horizon rearrest prediction, with calibrated probability outputs and subgroup fairness diagnostics. Primary analysis uses the NIJ Georgia parole dataset, with additional analyses on COMPAS (Broward County) and NCRP (national corrections data).
 
 ## Start here
 
@@ -10,7 +8,6 @@ A reproducible research prototype for multi-horizon rearrest prediction, with ca
 - **Full report:** [`docs/REPORT.md`](docs/REPORT.md) — paper-style narrative with methodology and results
 - **Metric definitions:** [`docs/EXPLAINER.md`](docs/EXPLAINER.md) — plain-language guide to Brier, AUROC, FPR, etc.
 - **Deep dive:** [`reports/fairness_report.md`](reports/fairness_report.md), [`reports/operational_eval.md`](reports/operational_eval.md), [`reports/final_summary.md`](reports/final_summary.md)
-- **Individual analysis:** [`reports/individual_analysis.md`](reports/individual_analysis.md) — lowest predicted, worst errors, trait profiles
 
 ### Visual quick look
 
@@ -31,7 +28,7 @@ Figures are generated from aggregate report data (no row-level data).
 
 ## Key Findings
 
-All numbers below are from the NIJ Georgia parole cohort (≈18,000 individuals) using seeded evaluation splits (seed 42). These are **associations in the data, not causal claims**. Rearrest is an observable event in the justice system, not a comprehensive measure of behavior.
+All numbers below are from the NIJ Georgia parole cohort (≈18,000 individuals) using seeded evaluation splits (seed 42).
 
 ### Top predictive factors
 
@@ -68,149 +65,10 @@ These are raw observed rates — not adjusted for other variables. Y2/Y3 are con
 
 "Δ pp" = percentage-point change in rearrest rate relative to the base rate for that horizon. Ordered by Y1 absolute difference. Full breakdowns: [`reports/nij_predictive_factors.md`](reports/nij_predictive_factors.md).
 
-### Lowest-likelihood traits (protective factors)
-
-Traits associated with the **lowest observed rearrest rates** across all three datasets. These are unadjusted (raw subgroup rates), not causal claims.
-
-| Dataset | Base Rate | Lowest-Rate Trait | Observed Rate | Δ from Base |
-|---|---:|---|---:|---:|
-| NIJ (Y1) | 29.8% | Age 48+ | 18.9% | −10.9 pp |
-| COMPAS | 45.5% | 0 prior offenses | 28.6% | −16.9 pp |
-| NCRP (Y1) | 29.5% | Time served 5+ years | 10.9% | −18.6 pp |
-
-<details>
-<summary><strong>Show NIJ lowest-rearrest traits (Georgia Parole, Year 1)</strong></summary>
-
-Base rate: 29.8%. Traits ranked by how far below the base rate they fall.
-
-| Rank | Trait | N | Rate | Δ (pp) | Relative Risk |
-|---:|---|---:|---:|---:|---:|
-| 1 | Age 48 or older | 2,641 | 18.9% | −10.9 | 0.63 |
-| 2 | Supervision risk score 1–3 | 2,806 | 19.1% | −10.7 | 0.64 |
-| 3 | 0 prior property arrests | 4,561 | 20.0% | −9.8 | 0.67 |
-| 4 | Gang affiliation unknown | 2,217 | 20.6% | −9.2 | 0.69 |
-| 5 | Prison time >3 years | 3,842 | 21.7% | −8.1 | 0.73 |
-| 6 | No MH/SA condition | 6,187 | 24.7% | −5.1 | 0.83 |
-| 7 | Age 43–47 | 1,858 | 24.8% | −5.0 | 0.83 |
-| 8 | Age 38–42 | 2,040 | 26.2% | −3.6 | 0.88 |
-| 9 | No gang affiliation | 13,030 | 27.8% | −2.0 | 0.93 |
-| 10 | Prison time 2–3 years | 2,935 | 28.1% | −1.7 | 0.94 |
-
-**Composite low-risk profile:** Older (43+), low supervision risk (1–3), no prior property arrests, longer prison terms (>3 years), no gang affiliation.
-
-</details>
-
-<details>
-<summary><strong>Show COMPAS lowest-rearrest traits (Broward County, 2-year)</strong></summary>
-
-Base rate: 45.5%. Traits ranked by how far below the base rate they fall.
-
-| Rank | Trait | N | Rate | Δ (pp) | Relative Risk |
-|---:|---|---:|---:|---:|---:|
-| 1 | Asian | 31 | 25.8% | −19.7 | 0.57 |
-| 2 | COMPAS score 1–3 (low) | 2,755 | 28.5% | −17.0 | 0.63 |
-| 3 | 0 prior offenses | 2,085 | 28.6% | −16.9 | 0.63 |
-| 4 | COMPAS risk level: Low | 3,421 | 31.5% | −14.0 | 0.69 |
-| 5 | Age >45 | 1,293 | 32.0% | −13.5 | 0.70 |
-| 6 | Violence score 1–3 (low) | 3,432 | 33.9% | −11.6 | 0.75 |
-| 7 | Female | 1,175 | 35.1% | −10.4 | 0.77 |
-| 8 | Other race | 343 | 36.2% | −9.3 | 0.80 |
-| 9 | Hispanic | 509 | 37.1% | −8.4 | 0.82 |
-| 10 | Misdemeanor charge | 2,202 | 37.5% | −8.0 | 0.82 |
-
-**Composite low-risk profile:** Older (>45), zero prior offenses, low COMPAS scores, female, misdemeanor charge. *Asian subgroup (N=31) too small for reliable estimation.*
-
-</details>
-
-<details>
-<summary><strong>Show NCRP lowest-reincarceration traits (national corrections, Year 1)</strong></summary>
-
-Base rate: 29.5%. Label is return-to-prison (not rearrest). Traits ranked by how far below the base rate they fall.
-
-| Rank | Trait | N | Rate | Δ (pp) | Relative Risk |
-|---:|---|---:|---:|---:|---:|
-| 1 | Time served 5+ years | 1,340 | 10.9% | −18.6 | 0.37 |
-| 2 | Sentence 25+ years / life | 414 | 12.1% | −17.4 | 0.41 |
-| 3 | Unconditional release (max-out) | 14,298 | 13.9% | −15.6 | 0.47 |
-| 4 | Age 55+ | 2,629 | 15.9% | −13.6 | 0.54 |
-| 5 | Time served 2–5 years | 2,985 | 16.0% | −13.5 | 0.54 |
-| 6 | Sentence 10–25 years | 1,156 | 20.4% | −9.1 | 0.69 |
-| 7 | New court commitment | 39,091 | 21.7% | −7.8 | 0.74 |
-| 8 | Time served 1–2 years | 9,852 | 21.2% | −8.3 | 0.72 |
-| 9 | Race unknown | 5,439 | 22.2% | −7.3 | 0.75 |
-| 10 | Female | 6,945 | 24.0% | −5.5 | 0.81 |
-
-**Composite low-risk profile:** Longer time served (2+ years), unconditional release, older (55+), new court commitment (not parole revocation).
-
-</details>
-
-<details>
-<summary><strong>Show cross-dataset protective patterns</strong></summary>
-
-Traits consistently associated with **lower** rearrest/reincarceration across all three datasets:
-
-| Pattern | NIJ | COMPAS | NCRP |
-|---|---|---|---|
-| **Older age** | 48+: 18.9% (base 29.8%) | >45: 32.0% (base 45.5%) | 55+: 15.9% (base 29.5%) |
-| **Female sex** | — | 35.1% (base 45.5%) | 24.0% (base 29.5%) |
-| **Fewer/zero priors** | 0 property arrests: 20.0% | 0 priors: 28.6% | New commitment: 21.7% |
-| **Longer incarceration** | >3 yr: 21.7% | — | 5+ yr: 10.9% |
-| **Lower risk scores** | Risk 1–3: 19.1% | COMPAS 1–3: 28.5% | — |
-
-| Factor | Datasets Present | Consistency |
-|---|---:|---|
-| Older age (top quintile) | 3/3 | Strong |
-| Zero / minimal prior record | 3/3 | Strong |
-| Lower risk classification | 2/3 | Moderate |
-| Longer time served | 2/3 | Moderate |
-| Female sex | 2/3 | Moderate |
-
-Full analysis: [`reports/lowest_rearrest_traits.md`](reports/lowest_rearrest_traits.md).
-
-</details>
-
-<details>
-<summary><strong>Show individual prediction analysis (lowest predicted + worst model errors)</strong></summary>
-
-From the held-out test set (20% split, seed 42). Full trait profiles: [`reports/individual_analysis.md`](reports/individual_analysis.md).
-
-**Lowest-predicted individuals (closest to 0):**
-
-| Dataset | Bottom 5% Cutoff | N | Actual Rate | Pred Mean | Pred Min |
-|---|---:|---:|---:|---:|---:|
-| NIJ Y1 | p ≤ 0.081 | 181 | 5.5% | 0.064 | 0.026 |
-| NIJ Y1 (bottom 1%) | p ≤ 0.054 | 37 | **0.0%** | 0.044 | 0.026 |
-| COMPAS | p ≤ 0.117 | 62 | 12.9% | 0.101 | 0.063 |
-| NCRP Y1 | p ≤ 0.059 | 715 | 2.5% | 0.031 | 0.000 |
-
-NIJ bottom-1% profile: 60% age 48+, 100% no gang affiliation, 68% prison >3yr, 67% sex offense, 81% white, 78% zero property arrests. **None were rearrested.**
-
-COMPAS bottom-5% profile: 58% age >45, 55% female, 95% zero priors, 100% low COMPAS score, 61% misdemeanor.
-
-NCRP bottom-5% profile: 100% age <25, 85% new court commitment, 43% unconditional release. *Note: unlike NIJ/COMPAS where older age is protective, NCRP's lowest-predicted group is young — this reflects the grouped-split design and the interaction between age, release type, and admission type in the NCRP data, not a contradiction of the age pattern.*
-
-**Worst false negatives** (rearrested but model predicted low):
-
-| Dataset | N | Pred Mean | Pred Max | Key Pattern |
-|---|---:|---:|---:|---|
-| NIJ Y1 | 53 | 0.106 | 0.143 | 30% age 48+, 100% no gang, 62% zero property arrests — look like low-risk but reoffended |
-| COMPAS | 28 | 0.129 | 0.167 | 100% low COMPAS score, 79% zero priors, 46% age >45 — classic low-risk profile |
-| NCRP Y1 | 181 | 0.105 | 0.130 | 100% age <25, 76% new commitment, 62% unconditional release |
-
-**Worst false positives** (not rearrested but model predicted high):
-
-| Dataset | N | Pred Mean | Pred Min | Key Pattern |
-|---|---:|---:|---:|---|
-| NIJ Y1 | 126 | 0.569 | 0.507 | 71% gang-affiliated, 100% male, 84% age <33, 45% prison <1yr, 39% 5+ property arrests |
-| COMPAS | 33 | 0.781 | 0.659 | 79% African-American, 94% male, 85% felony, 91% medium/high COMPAS score |
-| NCRP Y1 | 424 | 0.697 | 0.635 | 95% male, parole-revocation admissions, property offenses |
-
-</details>
-
 <details>
 <summary><strong>Show COMPAS predictive factors and unadjusted rates (Broward County, 2-year rearrest)</strong></summary>
 
-Different dataset, population, and features than NIJ — not directly comparable. These are associations, not causal effects. Base rate: 45.5%.
+Different dataset, population, and features than NIJ. Base rate: 45.5%.
 
 **Top SHAP factors:**
 
@@ -320,12 +178,12 @@ Subgroup metrics are computed by race (Black/White), gender (M/F), and age group
 | Gender | M | 3,178 | 0.193 | 0.697 |
 | Gender | F | 428 | 0.144 | 0.670 |
 
-At an illustrative threshold of 0.5 (not recommended for any operational use):
+At an illustrative threshold of 0.5:
 - **Race (Black vs. White):** FPR gap = 0.002, FNR gap = 0.063 (with race as a feature). Excluding race from training narrows some gaps slightly but does not eliminate them.
 - **Gender (M vs. F):** Larger gaps (FPR gap = 0.063, FNR gap = 0.172), partly driven by low female base rates producing unstable estimates.
 - **Age:** The 18–22 group has substantially higher selection rates and different error profiles than older groups.
 
-All fairness metrics depend on the classification threshold chosen; there is no single "fair" threshold. Full subgroup tables with bootstrap CIs: [`reports/fairness_report.md`](reports/fairness_report.md).
+Full subgroup tables with bootstrap CIs: [`reports/fairness_report.md`](reports/fairness_report.md).
 
 <details>
 <summary><strong>Show error-rate tables and threshold analysis</strong></summary>
@@ -366,7 +224,7 @@ Best configs rerun on seeds 42, 43, 44 — mean ± std (`reports/stability_eval.
 - **DYNAMIC Y2:** Brier 0.17028 ± 0.00270, AUROC 0.71549 ± 0.01278, race FPR gap@top10% 0.01696 ± 0.01752
 - **DYNAMIC Y3:** Brier 0.14280 ± 0.00046, AUROC 0.70392 ± 0.00796, race FPR gap@top10% 0.03198 ± 0.01003
 
-Overall ranking/calibration metrics are fairly stable across seeds. Subgroup gap estimates vary more and should be treated as uncertainty-aware diagnostics, not single fixed values.
+Overall ranking/calibration metrics are stable across seeds. Subgroup gap estimates vary more.
 
 </details>
 
@@ -454,13 +312,12 @@ Source: NIJ Recidivism Forecasting Challenge (Georgia parole cohort). ≈18,000 
 
 ### COMPAS (ProPublica)
 
-Source: ProPublica's analysis of COMPAS scores in Broward County, FL. ≈6,200 individuals, two-year rearrest outcome (base rate ≈45.5%). Included as a benchmark case study — not as a ground-truth standard. See [`docs/dataset_card_compas.md`](docs/dataset_card_compas.md).
+Source: ProPublica's analysis of COMPAS scores in Broward County, FL. ≈6,200 individuals, two-year rearrest outcome (base rate ≈45.5%). See [`docs/dataset_card_compas.md`](docs/dataset_card_compas.md).
 
 ### NCRP (ICPSR 37973)
 
 Source: NCRP "selected variables" extract. Term records used to derive return-to-prison/reincarceration labels (not rearrest). Year-granularity event timing. See [`docs/datasets/ncrp_icpsr_37973.md`](docs/datasets/ncrp_icpsr_37973.md).
 
-All datasets reflect specific jurisdictions and time periods and should not be assumed to generalize.
 
 </details>
 
@@ -493,7 +350,7 @@ Key highlights are shown in **Visual quick look** above. To regenerate: `make fi
 
 ![NCRP 37973 Y1 SHAP top factors](docs/figures/ncrp37973_y1_xgb_shap_top10.png)
 
-**NCRP top predictive factors (SHAP).** Associations in a separate dataset — not directly comparable to NIJ.
+**NCRP top predictive factors (SHAP).**
 
 ![COMPAS XGBoost calibration by race](docs/figures/compas_xgb_calibration_by_race.png)
 
@@ -501,7 +358,7 @@ Key highlights are shown in **Visual quick look** above. To regenerate: `make fi
 
 ![COMPAS XGBoost SHAP top factors](docs/figures/compas_xgb_shap_top10.png)
 
-**COMPAS top predictive factors (SHAP).** Not directly comparable to NIJ due to different features and populations.
+**COMPAS top predictive factors (SHAP).**
 
 </details>
 
@@ -558,20 +415,17 @@ See [`docs/PUBLISHING.md`](docs/PUBLISHING.md) for data-governance guidance.
 - NCRP benchmark: [`reports/ncrp_37973_terms_benchmark.md`](reports/ncrp_37973_terms_benchmark.md)
 - NCRP fairness: [`reports/ncrp_37973_fairness_report.md`](reports/ncrp_37973_fairness_report.md)
 - Policy curves: [`reports/policy_curves.md`](reports/policy_curves.md)
-- Lowest-rearrest traits: [`reports/lowest_rearrest_traits.md`](reports/lowest_rearrest_traits.md)
-- Individual prediction analysis: [`reports/individual_analysis.md`](reports/individual_analysis.md)
 - Plot specifications (JSON): [`reports/plots/`](reports/plots/)
 
 </details>
 
 ## Limitations
 
-- Labels are rearrest outcomes — an observable event in the justice system, not a comprehensive measure of behavior.
-- Results come from a single Georgia parole cohort (NIJ) and a Broward County sample (COMPAS). They should not be assumed to generalize.
+- Labels are rearrest outcomes, not a comprehensive measure of behavior.
+- Results come from a single Georgia parole cohort (NIJ) and a Broward County sample (COMPAS).
 - XGBoost improvements over logistic regression baselines are real but small (Brier differences of 0.001–0.006).
 - Subgroup error-rate gaps persist whether or not race is included as a training feature.
-- All fairness metrics depend on the classification threshold chosen; there is no single "fair" threshold.
-- This is a research prototype, not validated for operational use.
+- All fairness metrics depend on the classification threshold chosen.
 
 ## License
 
@@ -583,7 +437,6 @@ If you use this code or methodology, please cite:
 
 ```
 @misc{precrime2026,
-  author  = {Wray, Shane},
   title   = {precrime: Calibrated Multi-Horizon Rearrest Prediction (Research Prototype)},
   year    = {2026},
   url     = {https://github.com/smkwray/precrime}
