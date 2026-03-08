@@ -54,7 +54,7 @@ Policy in this repo:
 - Any attempt to identify individuals (the data should be treated as sensitive even if de-identified).
 
 ## Preprocessing and feature policy (planned)
-Preprocessing is implemented in lane-owned code (`src/data/`, `src/features/`) and should follow:
+Preprocessing is implemented in `src/data/` and `src/features/` and should follow:
 - Schema-driven typing and missing-value handling (`schemas/nij.yml`).
 - Categorical handling (e.g., one-hot) and numeric normalization as needed.
 - Two feature tracks:
