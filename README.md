@@ -1,6 +1,6 @@
 # precrime
 
-A reproducible research prototype for multi-horizon rearrest prediction, with calibrated probability outputs and subgroup fairness diagnostics. Primary analysis uses the NIJ Georgia parole dataset, with additional analyses on COMPAS (Broward County) and NCRP (national corrections data).
+Multi-horizon rearrest prediction with calibrated probability outputs and subgroup fairness diagnostics. Primary analysis uses the NIJ Georgia parole dataset, with additional analyses on COMPAS (Broward County) and NCRP (national corrections data).
 
 ## Start here
 
@@ -8,6 +8,15 @@ A reproducible research prototype for multi-horizon rearrest prediction, with ca
 - **Full report:** [`docs/REPORT.md`](docs/REPORT.md) — paper-style narrative with methodology and results
 - **Metric definitions:** [`docs/EXPLAINER.md`](docs/EXPLAINER.md) — plain-language guide to Brier, AUROC, FPR, etc.
 - **Deep dive:** [`reports/fairness_report.md`](reports/fairness_report.md), [`reports/operational_eval.md`](reports/operational_eval.md), [`reports/final_summary.md`](reports/final_summary.md)
+
+### Models used
+
+- **XGBoost** (primary) — Optuna-tuned gradient-boosted trees with Platt / isotonic / raw calibration
+- **Logistic regression** (custom gradient descent) and **lasso-logistic** (L1, proximal GD) — baselines
+- **HistGradientBoosting**, **Random Forest**, **Extra Trees** — model-sweep comparisons
+- **Base-rate** and **demographic-naive** — floor baselines
+
+Libraries: scikit-learn >= 1.4, xgboost >= 2.0, optuna >= 3.6, shap >= 0.44. Full methodology: [`docs/METHODS.md`](docs/METHODS.md).
 
 ### Visual quick look
 
@@ -286,20 +295,7 @@ This conditioning is critical: Year 2/Year 3 models are trained and evaluated on
 
 Two feature tracks are maintained: **static-at-release** (available at parole start) and **dynamic-supervision** (includes supervision-activity features released later in the NIJ materials).
 
-### Models
-
-- **Baselines**: Base-rate (constant prediction), naive-demographic (group means), logistic regression, lasso-logistic regression.
-- **XGBoost**: Optuna-tuned (32 trials) gradient-boosted trees with three post-hoc calibration variants: raw, Platt scaling, and isotonic regression.
-
-### Evaluation metrics
-
-- **Brier score** (primary): Mean squared error of predicted probabilities. Lower is better. Rewards both discrimination and calibration.
-- **AUROC**: Area under the ROC curve. Measures ranking/discrimination ability irrespective of calibration.
-- **AUPRC**: Area under the precision-recall curve. More informative than AUROC when classes are imbalanced.
-- **ECE**: Expected calibration error. How well predicted probabilities match observed rates across bins.
-- **Log loss**: Logarithmic scoring rule. Heavily penalizes confident wrong predictions.
-
-Plain-language guide: [`docs/EXPLAINER.md`](docs/EXPLAINER.md).
+Full model and metric details: [`docs/METHODS.md`](docs/METHODS.md). Plain-language metric guide: [`docs/EXPLAINER.md`](docs/EXPLAINER.md).
 
 </details>
 
@@ -437,7 +433,7 @@ If you use this code or methodology, please cite:
 
 ```
 @misc{precrime2026,
-  title   = {precrime: Calibrated Multi-Horizon Rearrest Prediction (Research Prototype)},
+  title   = {precrime: Calibrated Multi-Horizon Rearrest Prediction},
   year    = {2026},
   url     = {https://github.com/smkwray/precrime}
 }

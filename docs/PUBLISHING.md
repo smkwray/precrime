@@ -1,6 +1,6 @@
 # Publishing and Data-Governance Guidance
 
-This document describes what can and cannot be published from this repository, how to create a shareable export, and what disclaimers should accompany any public release.
+What can and cannot be published from this repository, how to create a shareable export, and what disclaimers should accompany any public release.
 
 ## What Can Be Published
 
@@ -71,7 +71,7 @@ This repo already includes a workflow file under `.github/workflows/ci.yml` (cop
 
 The README and REPORT.md both contain a Limitations section. If citing the project elsewhere, include at minimum:
 
-> Research prototype. Prediction targets are rearrest outcomes, not validated for operational use.
+> Prediction targets are rearrest outcomes. Not validated for operational use.
 
 ## Pre-Publication Checklist
 
