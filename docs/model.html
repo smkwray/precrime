@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Model Performance &mdash; precrime</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+
+<header class="site-header"><div class="header-inner">
+  <a href="index.html" class="site-logo">pre<span class="logo-accent">crime</span></a>
+  <div class="header-controls">
+    <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle navigation">&#9776;</button>
+    <button id="themeToggle" class="theme-toggle" onclick="pcToggle()" aria-label="Toggle theme">&#9790;</button>
+  </div>
+  <nav><ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="model.html" class="active">Model</a></li>
+    <li><a href="fairness.html">Fairness</a></li>
+    <li><a href="factors.html">Predictive Factors</a></li>
+    <li><a href="methods.html">Methods</a></li>
+    <li><a href="faq.html">FAQ</a></li>
+  </ul></nav>
+</div></header>
+
+<!-- ── Content ───────────────────────────────────────────── -->
+<main class="content">
+  <h1>Model Performance</h1>
+  <p class="page-intro">XGBoost with Platt calibration evaluated on NIJ Georgia parole cohort. Primary metric: Brier score (proper scoring rule rewarding both discrimination and calibration).</p>
+
+  <!-- 1. XGBoost Leaderboard -->
+  <section class="section">
+    <div class="section-header">
+      <h2>XGBoost Leaderboard</h2>
+      <span class="section-tag">Best per horizon</span>
+    </div>
+
+    <div class="chart-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Dataset</th>
+            <th>Horizon</th>
+            <th>Calibration</th>
+            <th class="num">Brier</th>
+            <th class="num">AUROC</th>
+            <th class="num">AUPRC</th>
+            <th class="num">ECE</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>dynamic</td>
+            <td>Y1</td>
+            <td>platt</td>
+            <td class="num highlight">0.188</td>
+            <td class="num">0.702</td>
+            <td class="num">0.479</td>
+            <td class="num">0.007</td>
+          </tr>
+          <tr>
+            <td>dynamic</td>
+            <td>Y2</td>
+            <td>isotonic</td>
+            <td class="num highlight">0.172</td>
+            <td class="num">0.705</td>
+            <td class="num">0.426</td>
+            <td class="num">0.017</td>
+          </tr>
+          <tr>
+            <td>dynamic</td>
+            <td>Y3</td>
+            <td>isotonic</td>
+            <td class="num highlight">0.143</td>
+            <td class="num">0.696</td>
+            <td class="num">0.316</td>
+            <td class="num">0.012</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 2. Baseline Comparison -->
+  <section class="section">
+    <div class="section-header">
+      <h2>Baseline Comparison</h2>
+    </div>
+
+    <div class="chart-container">
+      <h3>XGBoost vs Baselines (Brier Score)</h3>
+      <p class="chart-subtitle">Grouped by prediction horizon. Lower is better.</p>
+      <div class="chart-canvas-wrap">
+        <canvas id="baselineChart"></canvas>
+      </div>
+    </div>
+
+    <div class="insight-box">
+      <p><strong>Insight:</strong> XGBoost improvement over logistic regression is real but small: 0.001&ndash;0.006 Brier points. The biggest gain is at Y2 where dynamic features add discriminative power.</p>
+    </div>
+  </section>
+
+  <!-- 3. Seed Stability -->
+  <section class="section">
+    <div class="section-header">
+      <h2>Seed Stability</h2>
+    </div>
+
+    <div class="chart-container">
+      <h3>Brier Score Stability (Seeds 42/43/44)</h3>
+      <p class="chart-subtitle">Mean and standard deviation across three random seeds.</p>
+      <div class="chart-canvas-wrap">
+        <canvas id="seedChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>AUROC Stability (Seeds 42/43/44)</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Horizon</th>
+            <th class="num">AUROC Mean</th>
+            <th class="num">AUROC Std</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Y1</td>
+            <td class="num">0.70193</td>
+            <td class="num">&plusmn; 0.00363</td>
+          </tr>
+          <tr>
+            <td>Y2</td>
+            <td class="num">0.71549</td>
+            <td class="num">&plusmn; 0.01278</td>
+          </tr>
+          <tr>
+            <td>Y3</td>
+            <td class="num">0.70392</td>
+            <td class="num">&plusmn; 0.00796</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight-box">
+      <p><strong>Insight:</strong> Aggregate metrics are very stable across seeds. Subgroup gaps are more volatile: race FPR gap std ranges from 0.006 to 0.018.</p>
+    </div>
+  </section>
+
+  <!-- 4. COMPAS Benchmark -->
+  <section class="section">
+    <div class="section-header">
+      <h2>COMPAS Benchmark</h2>
+      <span class="section-tag">External reference</span>
+    </div>
+
+    <div class="chart-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th class="num">Brier</th>
+            <th class="num">AUROC</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>COMPAS XGBoost</td>
+            <td class="num">0.173</td>
+            <td class="num">0.808</td>
+            <td>Broward County, FL</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="warning-box">
+      <p>Different jurisdiction (Broward County), different features, different outcome definition. Not directly comparable to NIJ Georgia results.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer"><div class="footer-inner"><span>precrime &middot; MIT License</span><span>Data: NIJ Recidivism Forecasting Challenge (Georgia parole cohort)</span></div></footer>
+
+<script>
+(function () {
+  pcDefaults();
+  var charts = [];
+
+  function buildCharts() {
+    charts.forEach(function (ch) { ch.destroy(); });
+    charts.length = 0;
+    var c = C();
+    pcDefaults();
+
+    // Baseline Comparison chart
+    charts.push(new Chart(document.getElementById('baselineChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Y1', 'Y2', 'Y3'],
+        datasets: [
+          { label: 'Base Rate', data: [0.209, 0.191, 0.154], backgroundColor: c.palette[5], borderRadius: 4 },
+          { label: 'Logistic', data: [0.188, 0.178, 0.148], backgroundColor: c.palette[1], borderRadius: 4 },
+          { label: 'Lasso', data: [0.188, 0.178, 0.148], backgroundColor: c.palette[2], borderRadius: 4 },
+          { label: 'XGBoost', data: [0.188, 0.173, 0.143], backgroundColor: c.palette[0], borderRadius: 4 }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top', labels: { color: c.textSec, usePointStyle: true, pointStyle: 'rectRounded' } }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: c.textSec } },
+          y: { beginAtZero: true, max: 0.25, grid: { color: c.grid }, ticks: { color: c.textSec } }
+        }
+      }
+    }));
+
+    // Seed Stability chart — bar with error bars
+    var seedMeans = [0.18764, 0.17028, 0.14280];
+    var seedStds = [0.00111, 0.00270, 0.00046];
+
+    charts.push(new Chart(document.getElementById('seedChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Y1', 'Y2', 'Y3'],
+        datasets: [{
+          label: 'Brier (mean)',
+          data: seedMeans,
+          backgroundColor: c.palette[0],
+          borderRadius: 4
+        }]
+      },
+      plugins: [{
+        id: 'errorBars',
+        afterDraw: function (chart) {
+          var ctx = chart.ctx;
+          var meta = chart.getDatasetMeta(0);
+          ctx.save();
+          ctx.strokeStyle = c.text;
+          ctx.lineWidth = 1.5;
+          meta.data.forEach(function (bar, i) {
+            var x = bar.x;
+            var yScale = chart.scales.y;
+            var yTop = yScale.getPixelForValue(seedMeans[i] + seedStds[i]);
+            var yBot = yScale.getPixelForValue(seedMeans[i] - seedStds[i]);
+            var capW = 6;
+            ctx.beginPath();
+            ctx.moveTo(x, yTop);
+            ctx.lineTo(x, yBot);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x - capW, yTop);
+            ctx.lineTo(x + capW, yTop);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x - capW, yBot);
+            ctx.lineTo(x + capW, yBot);
+            ctx.stroke();
+          });
+          ctx.restore();
+        }
+      }],
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function (ctx) {
+                return ctx.dataset.label + ': ' + seedMeans[ctx.dataIndex].toFixed(5) + ' \u00B1 ' + seedStds[ctx.dataIndex].toFixed(5);
+              }
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: c.textSec } },
+          y: { beginAtZero: true, max: 0.22, grid: { color: c.grid }, ticks: { color: c.textSec } }
+        }
+      }
+    }));
+  }
+
+  buildCharts();
+  window.pcRebuild = buildCharts;
+})();
+</script>
+
+</body>
+</html>

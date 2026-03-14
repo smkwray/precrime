@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>FAQ &mdash; precrime</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header"><div class="header-inner">
+  <a href="index.html" class="site-logo">pre<span class="logo-accent">crime</span></a>
+  <div class="header-controls">
+    <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle navigation">&#9776;</button>
+    <button id="themeToggle" class="theme-toggle" onclick="pcToggle()" aria-label="Toggle theme">&#9790;</button>
+  </div>
+  <nav><ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="model.html">Model</a></li>
+    <li><a href="fairness.html">Fairness</a></li>
+    <li><a href="factors.html">Predictive Factors</a></li>
+    <li><a href="methods.html">Methods</a></li>
+    <li><a href="faq.html" class="active">FAQ</a></li>
+  </ul></nav>
+</div></header>
+
+<main class="content">
+
+  <h1>FAQ</h1>
+  <p class="page-intro">Common questions about the prediction models, fairness analysis, and data.</p>
+
+  <section class="section">
+
+    <!-- Q1 — open by default -->
+    <div class="faq-item open">
+      <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">What does this predict?</button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>Binary rearrest outcome at 1, 2, and 3 years after parole release. The model outputs a probability (0&ndash;1), not a categorical risk label. Rearrest is an observable justice system event, not a comprehensive measure of behavior.</p>
+      </div></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="faq-item">
+      <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">What is Brier score?</button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>A proper scoring rule that measures how close predicted probabilities are to actual outcomes. Range 0&ndash;1, lower is better. Unlike accuracy, it rewards both correct ranking AND well-calibrated probabilities. A model that says &ldquo;30% risk&rdquo; should see about 30% of those individuals rearrested.</p>
+      </div></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="faq-item">
+      <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">Why not just use accuracy?</button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>Accuracy depends on a threshold and treats all errors equally. Brier score evaluates the full probability output. A model can have high accuracy but terrible calibration (e.g., predict 0.99 for everyone in a 30% base-rate population &mdash; 70% &ldquo;accurate&rdquo; but useless probabilities).</p>
+      </div></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="faq-item">
+      <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">What are the horizons?</button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>Y1 = rearrest within 1 year (N=18,028). Y2 = rearrest in year 2, conditional on NOT being rearrested in year 1 (N=12,651). Y3 = rearrest in year 3, conditional on no prior rearrest (N=9,398). This conditioning prevents label leakage.</p>
+      </div></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="faq-item">
+      <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">How much better is XGBoost than simpler models?</button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>Small: 0.001&ndash;0.006 Brier points better than logistic regression. The gain is real but modest. Most of the predictive signal is captured by linear models.</p>
+      </div></div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="faq-item">
+      <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">Does the model use race?</button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>Both variants are tested. Removing race from training does not meaningfully change performance or fairness gaps because other features carry correlated signal.</p>
+      </div></div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="faq-item">
+      <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">What are fairness gaps?</button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>Differences in error rates (FPR, FNR) between demographic subgroups at a given threshold. These gaps change with the threshold &mdash; there is no single threshold that minimizes all gaps simultaneously.</p>
+      </div></div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="faq-item">
+      <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">What is the strongest predictor?</button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>Gang affiliation (SHAP 0.163), associated with a +19.1 percentage point increase in Y1 rearrest rate. Young age (18&ndash;22) and supervision risk score are also strong.</p>
+      </div></div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="faq-item">
+      <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">Is this validated for real-world use?</button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>No. This is a research prototype. It has not been validated for operational use in any justice system. Labels are rearrest outcomes from a single jurisdiction and time period.</p>
+      </div></div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="faq-item">
+      <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">Is the code open source?</button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>Yes, MIT License. Raw data is not redistributed; it is available through the NIJ Challenge portal.</p>
+      </div></div>
+    </div>
+
+  </section>
+
+</main>
+
+<footer class="site-footer"><div class="footer-inner"><span>precrime &middot; MIT License</span><span>Data: NIJ Recidivism Forecasting Challenge</span></div></footer>
+
+</body>
+</html>

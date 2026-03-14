@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Predictive Factors &mdash; precrime</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="site-logo">pre<span class="logo-accent">crime</span></a>
+    <div class="header-controls">
+      <nav>
+        <ul class="nav-links" id="navLinks">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="model.html">Model</a></li>
+          <li><a href="fairness.html">Fairness</a></li>
+          <li><a href="factors.html" class="active">Predictive Factors</a></li>
+          <li><a href="methods.html">Methods</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+        </ul>
+      </nav>
+      <button class="theme-toggle" id="themeToggle" onclick="pcToggle()" aria-label="Toggle theme"></button>
+      <button class="nav-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+    </div>
+  </div>
+</header>
+
+<!-- ── Content ─────────────────────────────────────────── -->
+<main class="content">
+  <h1>Predictive Factors</h1>
+  <p class="page-intro">SHAP feature importance and unadjusted rearrest rate differences for the NIJ Year 1 static model.</p>
+
+  <!-- ── 1. Top 10 SHAP Features ─────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2>Top 10 SHAP Features (Y1)</h2>
+      <span class="section-tag">Importance</span>
+    </div>
+
+    <p>Mean absolute SHAP values quantify each feature's average contribution to individual predictions. Gang affiliation status is the single strongest predictor, followed by prior-violation history and age group indicators.</p>
+
+    <div class="chart-container">
+      <h3>SHAP Feature Importance (Y1 Static XGBoost)</h3>
+      <p class="chart-subtitle">Mean |SHAP value| across the test set, sorted descending</p>
+      <div class="chart-canvas-wrap">
+        <canvas id="chartShap"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 2. Unadjusted Rearrest Rate Deltas ──────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2>Unadjusted Rearrest Rate Deltas</h2>
+      <span class="section-tag">Base rate: 29.4%</span>
+    </div>
+
+    <p>Each bar shows the difference in Y1 rearrest rate between the subgroup and the overall base rate (29.4%). Positive values indicate a higher-than-average rearrest rate; negative values indicate a protective association. These are unadjusted&mdash;they do not control for other covariates.</p>
+
+    <div class="chart-container">
+      <h3>Rearrest Rate Delta from Base Rate (Y1)</h3>
+      <p class="chart-subtitle">Percentage-point difference from the 29.4% overall rearrest rate</p>
+      <div class="chart-canvas-wrap">
+        <canvas id="chartDelta"></canvas>
+      </div>
+      <p class="chart-note">Unadjusted differences. Actual causal effects may differ after controlling for confounders.</p>
+    </div>
+  </section>
+
+  <!-- ── 3. Age Distribution ─────────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2>Age &amp; Rearrest</h2>
+      <span class="section-tag">Gradient</span>
+    </div>
+
+    <p>Rearrest rates decline monotonically with age. The youngest cohort (18&ndash;22) has more than double the rearrest rate of the oldest (48+), consistent with well-established age-crime curve findings in criminology.</p>
+
+    <div class="chart-container">
+      <h3>Y1 Rearrest Rate by Age Group</h3>
+      <p class="chart-subtitle">Percentage of each age group rearrested within one year</p>
+      <div class="chart-canvas-wrap">
+        <canvas id="chartAge"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 4. Cross-Horizon Comparison ─────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2>Cross-Horizon Comparison</h2>
+      <span class="section-tag">Y1 / Y2 / Y3</span>
+    </div>
+
+    <p>Top predictive factors shift across forecast horizons. Year 2 and Year 3 models are trained on conditional populations&mdash;individuals who were not rearrested at the prior horizon&mdash;so the population composition changes. Factors that dominate early prediction (gang affiliation, young age) may decrease in relative importance as the remaining population becomes lower-risk.</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th class="num">Y1 Rank</th>
+          <th class="num">Y2 Rank</th>
+          <th class="num">Y3 Rank</th>
+          <th>Trend</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="highlight">Gang Affiliated</td>
+          <td class="num">1</td>
+          <td class="num">1&ndash;2</td>
+          <td class="num">2&ndash;3</td>
+          <td>Remains important; slight decline</td>
+        </tr>
+        <tr>
+          <td class="highlight">Prior Violations (none)</td>
+          <td class="num">2</td>
+          <td class="num">2&ndash;3</td>
+          <td class="num">1&ndash;2</td>
+          <td>Stable or rising</td>
+        </tr>
+        <tr>
+          <td class="highlight">Age 23&ndash;27</td>
+          <td class="num">3</td>
+          <td class="num">4&ndash;5</td>
+          <td class="num">5&ndash;7</td>
+          <td>Declines as young cohort filters out</td>
+        </tr>
+        <tr>
+          <td class="highlight">Supervision Risk Score</td>
+          <td class="num">4</td>
+          <td class="num">3&ndash;4</td>
+          <td class="num">3&ndash;4</td>
+          <td>Relatively stable</td>
+        </tr>
+        <tr>
+          <td class="highlight">Age 48+</td>
+          <td class="num">5</td>
+          <td class="num">5&ndash;6</td>
+          <td class="num">4&ndash;5</td>
+          <td>Protective effect persists</td>
+        </tr>
+        <tr>
+          <td class="highlight">Property Arrests 5+</td>
+          <td class="num">7</td>
+          <td class="num">6&ndash;8</td>
+          <td class="num">6&ndash;8</td>
+          <td>Stable mid-tier predictor</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="warning-box">
+      <p><strong>Note:</strong> Y2 and Y3 are conditional populations (those not rearrested at prior horizons). The population changes at each horizon, so rank shifts reflect both changing feature importance and changing cohort composition.</p>
+    </div>
+  </section>
+</main>
+
+<!-- ── Footer ──────────────────────────────────────────── -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>precrime &middot; MIT License</span>
+    <span>Data: NIJ Recidivism Forecasting Challenge (Georgia parole cohort)</span>
+  </div>
+</footer>
+
+<!-- ── Charts ──────────────────────────────────────────── -->
+<script>
+(function () {
+  'use strict';
+  var charts = [];
+
+  function buildCharts() {
+    charts.forEach(function (ch) { ch.destroy(); });
+    charts = [];
+    var c = C();
+
+    /* ── Chart 1: SHAP Feature Importance ── */
+    var shapLabels = [
+      'Gang Affiliated (Yes)',
+      'No Prior Violations',
+      'Age 23\u201327',
+      'Supervision Risk Score',
+      'Age 48+',
+      'Age 18\u201322',
+      'Property Arrests 5+',
+      'Prior Violations 5+',
+      'Prison < 1 yr',
+      'Gang (missing)'
+    ];
+    var shapValues = [0.163, 0.114, 0.106, 0.100, 0.092, 0.082, 0.080, 0.080, 0.069, 0.059];
+
+    charts.push(new Chart(document.getElementById('chartShap'), {
+      type: 'bar',
+      data: {
+        labels: shapLabels,
+        datasets: [{
+          label: 'Mean |SHAP|',
+          data: shapValues,
+          backgroundColor: c.accent,
+          borderRadius: 4,
+          barThickness: 22
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: { title: { display: true, text: 'Mean |SHAP Value|', color: c.textSec }, grid: { color: c.grid }, ticks: { color: c.textSec }, min: 0 },
+          y: { grid: { display: false }, ticks: { color: c.text } }
+        }
+      }
+    }));
+
+    /* ── Chart 2: Rearrest Rate Delta ── */
+    var deltaLabels = [
+      'Gang Affiliated',
+      '5+ Property Arrests',
+      'Age 18\u201322',
+      'MH/SA History',
+      'Prison < 1 yr',
+      'Age 48+ (protective)'
+    ];
+    var deltaValues = [19.1, 15.9, 12.2, 7.8, 6.3, -10.5];
+    var deltaColors = deltaValues.map(function (v) { return v >= 0 ? c.orange : c.accent; });
+
+    charts.push(new Chart(document.getElementById('chartDelta'), {
+      type: 'bar',
+      data: {
+        labels: deltaLabels,
+        datasets: [{
+          label: 'pp from base rate',
+          data: deltaValues,
+          backgroundColor: deltaColors,
+          borderRadius: 4,
+          barThickness: 22
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function (ctx) {
+                var v = ctx.raw;
+                return (v >= 0 ? '+' : '') + v.toFixed(1) + ' pp';
+              }
+            }
+          }
+        },
+        scales: {
+          x: { title: { display: true, text: 'Percentage-Point Delta', color: c.textSec }, grid: { color: c.grid }, ticks: { color: c.textSec } },
+          y: { grid: { display: false }, ticks: { color: c.text } }
+        }
+      }
+    }));
+
+    /* ── Chart 3: Age Distribution ── */
+    var ageLabels = ['18\u201322', '23\u201327', '28\u201332', '33\u201337', '38\u201342', '43\u201347', '48+'];
+    var ageValues = [42, 36, 30, 27, 24, 23, 19];
+    var ageColors = ageValues.map(function (v, i) { return c.palette[i % c.palette.length]; });
+
+    charts.push(new Chart(document.getElementById('chartAge'), {
+      type: 'bar',
+      data: {
+        labels: ageLabels,
+        datasets: [{
+          label: 'Rearrest Rate (%)',
+          data: ageValues,
+          backgroundColor: ageColors,
+          borderRadius: 4,
+          barThickness: 36
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function (ctx) { return ctx.raw + '%'; }
+            }
+          }
+        },
+        scales: {
+          x: { title: { display: true, text: 'Age Group', color: c.textSec }, grid: { display: false }, ticks: { color: c.textSec } },
+          y: { title: { display: true, text: 'Y1 Rearrest Rate (%)', color: c.textSec }, grid: { color: c.grid }, ticks: { color: c.textSec }, min: 0, max: 50 }
+        }
+      }
+    }));
+  }
+
+  pcDefaults();
+  buildCharts();
+  window.pcRebuild = function () { pcDefaults(); buildCharts(); };
+})();
+</script>
+</body>
+</html>

@@ -1,5 +1,7 @@
 # precrime
 
+**[Browse the interactive results site](https://smkwray.github.io/precrime/)**
+
 Multi-horizon rearrest prediction with calibrated probability outputs and subgroup fairness diagnostics. Primary analysis uses the NIJ Georgia parole dataset, with additional analyses on COMPAS (Broward County) and NCRP (national corrections data).
 
 ## Start here

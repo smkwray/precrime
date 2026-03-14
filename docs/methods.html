@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Methods &mdash; precrime</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header"><div class="header-inner">
+  <a href="index.html" class="site-logo">pre<span class="logo-accent">crime</span></a>
+  <div class="header-controls">
+    <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle navigation">&#9776;</button>
+    <button id="themeToggle" class="theme-toggle" onclick="pcToggle()" aria-label="Toggle theme">&#9790;</button>
+  </div>
+  <nav><ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="model.html">Model</a></li>
+    <li><a href="fairness.html">Fairness</a></li>
+    <li><a href="factors.html">Predictive Factors</a></li>
+    <li><a href="methods.html" class="active">Methods</a></li>
+    <li><a href="faq.html">FAQ</a></li>
+  </ul></nav>
+</div></header>
+
+<main class="content">
+
+  <h1>Methodology</h1>
+  <p class="page-intro">Technical details on models, calibration, evaluation, and fairness diagnostics.</p>
+
+  <!-- ── 1. Models ──────────────────────────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2>1. Models</h2>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Type</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="highlight">XGBoost</td>
+          <td>Gradient boosting</td>
+          <td>500 trees, lr=0.05, depth=6, Optuna-tuned (32 trials, TPE sampler, minimizing Brier)</td>
+        </tr>
+        <tr>
+          <td class="highlight">Logistic Regression</td>
+          <td>Linear</td>
+          <td>Custom batch gradient descent, L2=1e-3</td>
+        </tr>
+        <tr>
+          <td class="highlight">Lasso-Logistic</td>
+          <td>L1-regularized</td>
+          <td>L1=5e-4, proximal gradient descent</td>
+        </tr>
+        <tr>
+          <td class="highlight">Base Rate</td>
+          <td>Naive</td>
+          <td>Predicts training-set positive rate for all</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── 2. Calibration ─────────────────────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2>2. Calibration</h2>
+    </div>
+
+    <ul>
+      <li><strong>Raw:</strong> no post-processing</li>
+      <li><strong>Platt scaling:</strong> sigmoid fit on validation predictions</li>
+      <li><strong>Isotonic regression:</strong> non-parametric monotone fit</li>
+    </ul>
+  </section>
+
+  <!-- ── 3. Evaluation Metrics ──────────────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2>3. Evaluation Metrics</h2>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Role</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="highlight">Brier score</td>
+          <td>Primary</td>
+          <td>Proper scoring rule (lower is better). Rewards calibration AND discrimination</td>
+        </tr>
+        <tr>
+          <td class="highlight">AUROC</td>
+          <td>Ranking</td>
+          <td>How well model ranks individuals (higher is better)</td>
+        </tr>
+        <tr>
+          <td class="highlight">AUPRC</td>
+          <td>Positive-class ranking</td>
+          <td>Important when base rate is moderate</td>
+        </tr>
+        <tr>
+          <td class="highlight">ECE</td>
+          <td>Calibration check</td>
+          <td>Expected calibration error</td>
+        </tr>
+        <tr>
+          <td class="highlight">FPR/FNR</td>
+          <td>Threshold-dependent</td>
+          <td>False positive/negative rates at chosen threshold</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── 4. Horizon Conditioning ────────────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2>4. Horizon Conditioning</h2>
+    </div>
+
+    <ul>
+      <li><strong>Y1:</strong> full sample (N=18,028)</li>
+      <li><strong>Y2:</strong> only individuals NOT rearrested in Y1 (N=12,651)</li>
+      <li><strong>Y3:</strong> only individuals NOT rearrested in Y1 OR Y2 (N=9,398)</li>
+    </ul>
+
+    <div class="insight-box">
+      <p>This prevents label leakage across horizons.</p>
+    </div>
+  </section>
+
+  <!-- ── 5. Fairness Diagnostics ────────────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2>5. Fairness Diagnostics</h2>
+    </div>
+
+    <ul>
+      <li><strong>Subgroups:</strong> Race (Black/White), Gender (M/F), Age (7 bands)</li>
+      <li><strong>Metrics computed at multiple thresholds:</strong> 0 to 1, step 0.05</li>
+      <li><strong>Bootstrap CIs:</strong> 2,000 iterations overall, 200 for subgroups</li>
+      <li><strong>With/without race feature comparison</strong></li>
+      <li><strong>Operational policy evaluation:</strong> t=0.5, top 10%, top 20%</li>
+    </ul>
+  </section>
+
+  <!-- ── 6. SHAP ────────────────────────────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2>6. SHAP</h2>
+    </div>
+
+    <ul>
+      <li>TreeExplainer on XGBoost</li>
+      <li>Up to 2,000 samples</li>
+      <li>Mean absolute SHAP value per feature</li>
+    </ul>
+  </section>
+
+  <!-- ── 7. Libraries ───────────────────────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2>7. Libraries</h2>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Library</th>
+          <th>Version</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>scikit-learn</td>
+          <td class="num">&ge;1.4</td>
+        </tr>
+        <tr>
+          <td>xgboost</td>
+          <td class="num">&ge;2.0</td>
+        </tr>
+        <tr>
+          <td>optuna</td>
+          <td class="num">&ge;3.6</td>
+        </tr>
+        <tr>
+          <td>shap</td>
+          <td class="num">&ge;0.44</td>
+        </tr>
+        <tr>
+          <td>Python</td>
+          <td class="num">3.11+</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── 8. Data ────────────────────────────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2>8. Data</h2>
+    </div>
+
+    <ul>
+      <li><strong>NIJ Recidivism Forecasting Challenge</strong> (Georgia parole cohort, ~18,000)</li>
+      <li><strong>COMPAS benchmark</strong> (Broward County, ~6,200) &mdash; separate validation</li>
+      <li>Labels are rearrest outcomes (observable justice system events, not comprehensive behavior)</li>
+      <li>Raw data not redistributed; available from NIJ</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer class="site-footer"><div class="footer-inner"><span>precrime &middot; MIT License</span><span>Data: NIJ Recidivism Forecasting Challenge</span></div></footer>
+
+</body>
+</html>

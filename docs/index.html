@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>precrime &mdash; Multi-Horizon Rearrest Prediction</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+
+<header class="site-header"><div class="header-inner">
+  <a href="index.html" class="site-logo">pre<span class="logo-accent">crime</span></a>
+  <div class="header-controls">
+    <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle navigation">&#9776;</button>
+    <button id="themeToggle" class="theme-toggle" onclick="pcToggle()" aria-label="Toggle theme">&#9790;</button>
+  </div>
+  <nav><ul class="nav-links">
+    <li><a href="index.html" class="active">Home</a></li>
+    <li><a href="model.html">Model</a></li>
+    <li><a href="fairness.html">Fairness</a></li>
+    <li><a href="factors.html">Predictive Factors</a></li>
+    <li><a href="methods.html">Methods</a></li>
+    <li><a href="faq.html">FAQ</a></li>
+  </ul></nav>
+</div></header>
+
+<!-- ── Hero ──────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-inner">
+    <h1>Multi-Horizon Rearrest Prediction</h1>
+    <p class="subtitle">Calibrated probability models for rearrest prediction at 1, 2, and 3-year horizons with comprehensive fairness diagnostics. Built on the NIJ Recidivism Forecasting Challenge dataset (~18,000 Georgia parolees).</p>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value">18K</div>
+        <div class="stat-label">Parolees</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">3</div>
+        <div class="stat-label">Horizons</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">0.188</div>
+        <div class="stat-label">Best Brier (Y1)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">0.70</div>
+        <div class="stat-label">AUROC (Y1)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Content ───────────────────────────────────────────── -->
+<main class="content">
+
+  <!-- Key Findings -->
+  <section class="section">
+    <div class="section-header">
+      <h2>Key Findings</h2>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <h3>Calibrated predictions work</h3>
+        <p>Best Y1 Brier score is 0.188 (vs base-rate 0.209). Platt-calibrated XGBoost produces well-calibrated probabilities across race and gender subgroups.</p>
+        <a href="model.html" class="card-link">Model performance</a>
+      </div>
+      <div class="card">
+        <h3>Fairness gaps are threshold-dependent</h3>
+        <p>Race FPR gap at t=0.5 is 0.002, but peaks at 0.116 near t=0.25. Choosing a threshold changes who bears the errors.</p>
+        <a href="fairness.html" class="card-link">Fairness analysis</a>
+      </div>
+      <div class="card">
+        <h3>Gang affiliation is strongest predictor</h3>
+        <p>SHAP importance 0.163. Associated with +19.1 pp rearrest delta. Age 18-22 (+12.2 pp) and supervision risk score also dominant.</p>
+        <a href="factors.html" class="card-link">Predictive factors</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- At a Glance chart -->
+  <section class="section">
+    <div class="section-header">
+      <h2>At a Glance</h2>
+    </div>
+
+    <div class="chart-container">
+      <h3>Brier Score by Model and Horizon</h3>
+      <p class="chart-subtitle">Lower is better. Y2/Y3 are conditional on non-rearrest at prior horizons.</p>
+      <div class="chart-canvas-wrap">
+        <canvas id="brierChart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- Explore -->
+  <section class="section">
+    <div class="section-header">
+      <h2>Explore</h2>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <h3>Model Performance</h3>
+        <p>XGBoost leaderboard, baseline comparisons, seed stability, and COMPAS benchmark.</p>
+        <a href="model.html" class="card-link">View models</a>
+      </div>
+      <div class="card">
+        <h3>Fairness</h3>
+        <p>Threshold sweeps, subgroup calibration, and error-rate parity analysis across race and gender.</p>
+        <a href="fairness.html" class="card-link">View fairness</a>
+      </div>
+      <div class="card">
+        <h3>Predictive Factors</h3>
+        <p>SHAP values, feature importance rankings, and subgroup rearrest-rate breakdowns.</p>
+        <a href="factors.html" class="card-link">View factors</a>
+      </div>
+      <div class="card">
+        <h3>Methods</h3>
+        <p>Data pipeline, feature engineering, model training, calibration, and evaluation methodology.</p>
+        <a href="methods.html" class="card-link">View methods</a>
+      </div>
+      <div class="card">
+        <h3>FAQ</h3>
+        <p>Common questions about the dataset, models, fairness metrics, and limitations.</p>
+        <a href="faq.html" class="card-link">View FAQ</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer"><div class="footer-inner"><span>precrime &middot; MIT License</span><span>Data: NIJ Recidivism Forecasting Challenge (Georgia parole cohort)</span></div></footer>
+
+<script>
+(function () {
+  pcDefaults();
+  var c = C();
+  var charts = [];
+
+  function buildCharts() {
+    charts.forEach(function (ch) { ch.destroy(); });
+    charts.length = 0;
+    var c = C();
+    pcDefaults();
+
+    charts.push(new Chart(document.getElementById('brierChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Y1', 'Y2', 'Y3'],
+        datasets: [
+          { label: 'Base Rate', data: [0.209, 0.191, 0.154], backgroundColor: c.palette[5], borderRadius: 4 },
+          { label: 'Logistic', data: [0.188, 0.178, 0.148], backgroundColor: c.palette[1], borderRadius: 4 },
+          { label: 'XGBoost (Platt)', data: [0.188, 0.173, 0.143], backgroundColor: c.palette[0], borderRadius: 4 }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top', labels: { color: c.textSec, usePointStyle: true, pointStyle: 'rectRounded' } }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: c.textSec } },
+          y: { beginAtZero: true, max: 0.25, grid: { color: c.grid }, ticks: { color: c.textSec } }
+        }
+      }
+    }));
+  }
+
+  buildCharts();
+  window.pcRebuild = buildCharts;
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Fairness Diagnostics &mdash; precrime</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="site-logo">pre<span class="logo-accent">crime</span></a>
+    <div class="header-controls">
+      <nav>
+        <ul class="nav-links" id="navLinks">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="model.html">Model</a></li>
+          <li><a href="fairness.html" class="active">Fairness</a></li>
+          <li><a href="factors.html">Predictive Factors</a></li>
+          <li><a href="methods.html">Methods</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+        </ul>
+      </nav>
+      <button class="theme-toggle" id="themeToggle" onclick="pcToggle()" aria-label="Toggle theme"></button>
+      <button class="nav-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+    </div>
+  </div>
+</header>
+
+<!-- ── Content ─────────────────────────────────────────── -->
+<main class="content">
+  <h1>Fairness Diagnostics</h1>
+  <p class="page-intro">Subgroup error rates across race, gender, and age for the best Y1 XGBoost model. Gaps depend heavily on the classification threshold chosen.</p>
+
+  <!-- ── 1. Threshold Dependence ─────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2>Threshold Dependence</h2>
+      <span class="section-tag">Race gaps</span>
+    </div>
+
+    <p>FPR and FNR gaps between Black and White subjects vary substantially across classification thresholds. At t&nbsp;=&nbsp;0.50 the race FPR gap is near zero (0.002), but at lower thresholds it widens. Conversely, the FNR gap peaks at t&nbsp;=&nbsp;0.50 and is smaller at the extremes.</p>
+
+    <div class="chart-container">
+      <h3>Race FPR / FNR Gap vs Threshold (Y1)</h3>
+      <p class="chart-subtitle">Absolute gap between Black and White subgroups at each threshold</p>
+      <div class="chart-canvas-wrap">
+        <canvas id="chartGapThreshold"></canvas>
+      </div>
+    </div>
+
+    <div class="insight-box">
+      <p><strong>Key finding:</strong> The FPR gap peaks around t&nbsp;=&nbsp;0.25&ndash;0.30 and nearly vanishes at t&nbsp;=&nbsp;0.50. The FNR gap is highest at t&nbsp;=&nbsp;0.50. No single threshold minimizes both gaps simultaneously.</p>
+    </div>
+  </section>
+
+  <!-- ── 2. Subgroup Brier Scores ────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2>Subgroup Brier Scores (Y1)</h2>
+      <span class="section-tag">Calibration</span>
+    </div>
+
+    <p>Brier score measures the mean squared difference between predicted probabilities and actual outcomes. Lower is better. Scores are broadly comparable across subgroups, with the largest spread between Female (0.149) and Black (0.195).</p>
+
+    <div class="chart-container">
+      <h3>Brier Score by Subgroup</h3>
+      <p class="chart-subtitle">Lower values indicate better-calibrated probability estimates</p>
+      <div class="chart-canvas-wrap">
+        <canvas id="chartBrier"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 3. At Threshold 0.5 ─────────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2>Error Rates at Threshold 0.5 (Y1)</h2>
+      <span class="section-tag">t = 0.50</span>
+    </div>
+
+    <p>At the standard 0.50 classification threshold, the model exhibits a small FPR gap (0.002) between Black and White subjects but a moderate FNR gap (0.063). Gender differences are also present, driven partly by differing base rates.</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Group</th>
+          <th class="num">FPR</th>
+          <th class="num">FNR</th>
+          <th class="num">PPV</th>
+          <th class="num">Selection Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="highlight">Black</td>
+          <td class="num">0.082</td>
+          <td class="num">0.786</td>
+          <td class="num">0.64</td>
+          <td class="num">0.109</td>
+        </tr>
+        <tr>
+          <td class="highlight">White</td>
+          <td class="num">0.080</td>
+          <td class="num">0.849</td>
+          <td class="num">0.52</td>
+          <td class="num">0.085</td>
+        </tr>
+        <tr style="background:var(--color-bg-alt)">
+          <td><strong>Gap (B &minus; W)</strong></td>
+          <td class="num"><strong>0.002</strong></td>
+          <td class="num"><strong>0.063</strong></td>
+          <td class="num">&mdash;</td>
+          <td class="num">&mdash;</td>
+        </tr>
+        <tr>
+          <td class="highlight">Male</td>
+          <td class="num">0.087</td>
+          <td class="num">0.798</td>
+          <td class="num">0.61</td>
+          <td class="num">0.107</td>
+        </tr>
+        <tr>
+          <td class="highlight">Female</td>
+          <td class="num">0.040</td>
+          <td class="num">0.884</td>
+          <td class="num">0.47</td>
+          <td class="num">0.044</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── 4. With vs Without Race ─────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2>With vs Without Race Feature</h2>
+      <span class="section-tag">Ablation</span>
+    </div>
+
+    <p>Removing the race indicator from the feature set does not eliminate performance disparities. Other features&mdash;geography, offense history, supervision patterns&mdash;correlate with race and carry much of the same signal.</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Variant</th>
+          <th class="num">Brier</th>
+          <th class="num">AUROC</th>
+          <th class="num">Race FPR Gap (t=0.5)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="highlight">With race</td>
+          <td class="num">0.188</td>
+          <td class="num">0.702</td>
+          <td class="num">0.002</td>
+        </tr>
+        <tr>
+          <td class="highlight">Without race</td>
+          <td class="num">~0.189</td>
+          <td class="num">~0.700</td>
+          <td class="num">similar</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="insight-box">
+      <p><strong>Key finding:</strong> Removing the race feature does not meaningfully change aggregate performance or fairness gaps. Other features (geography, prior record patterns) carry correlated signal.</p>
+    </div>
+  </section>
+
+  <!-- ── 5. Operational Policy Comparison ────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2>Operational Policy Comparison</h2>
+      <span class="section-tag">Trade-offs</span>
+    </div>
+
+    <p>The choice of classification threshold directly affects how many individuals are flagged as high-risk and the resulting error profile. A lower cutoff (or a top-K% selection rule) increases sensitivity but also increases false positives.</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Policy</th>
+          <th class="num">FP (Black)</th>
+          <th class="num">FN (Black)</th>
+          <th class="num">FP (White)</th>
+          <th class="num">FN (White)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="highlight">t = 0.50</td>
+          <td class="num">~370</td>
+          <td class="num">~3,540</td>
+          <td class="num">~170</td>
+          <td class="num">~1,440</td>
+        </tr>
+        <tr>
+          <td class="highlight">Top 10%</td>
+          <td class="num">~680</td>
+          <td class="num">~2,890</td>
+          <td class="num">~350</td>
+          <td class="num">~1,150</td>
+        </tr>
+        <tr>
+          <td class="highlight">Top 20%</td>
+          <td class="num">~1,250</td>
+          <td class="num">~2,210</td>
+          <td class="num">~640</td>
+          <td class="num">~860</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="chart-note">Choosing a more aggressive selection threshold (lower cutoff or top-K%) flags more people as high-risk, reducing misses but increasing false positives. Counts are approximate and based on the Y1 test set.</p>
+  </section>
+</main>
+
+<!-- ── Footer ──────────────────────────────────────────── -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>precrime &middot; MIT License</span>
+    <span>Data: NIJ Recidivism Forecasting Challenge (Georgia parole cohort)</span>
+  </div>
+</footer>
+
+<!-- ── Charts ──────────────────────────────────────────── -->
+<script>
+(function () {
+  'use strict';
+  var charts = [];
+
+  function buildCharts() {
+    charts.forEach(function (ch) { ch.destroy(); });
+    charts = [];
+    var c = C();
+
+    /* ── Chart 1: Race FPR/FNR Gap vs Threshold ── */
+    charts.push(new Chart(document.getElementById('chartGapThreshold'), {
+      type: 'line',
+      data: {
+        labels: ['0.20', '0.30', '0.40', '0.50', '0.60', '0.70'],
+        datasets: [
+          {
+            label: 'FPR Gap (|Black \u2212 White|)',
+            data: [0.10, 0.12, 0.05, 0.002, 0.01, 0.00],
+            borderColor: c.red,
+            backgroundColor: c.red + '22',
+            tension: 0.3,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            fill: false
+          },
+          {
+            label: 'FNR Gap (|Black \u2212 White|)',
+            data: [0.02, 0.04, 0.05, 0.063, 0.06, 0.03],
+            borderColor: c.accent,
+            backgroundColor: c.accent + '22',
+            tension: 0.3,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { labels: { color: c.textSec, usePointStyle: true, padding: 16 } }
+        },
+        scales: {
+          x: { title: { display: true, text: 'Classification Threshold', color: c.textSec }, grid: { color: c.grid }, ticks: { color: c.textSec } },
+          y: { title: { display: true, text: 'Absolute Gap', color: c.textSec }, grid: { color: c.grid }, ticks: { color: c.textSec }, min: 0, max: 0.15 }
+        }
+      }
+    }));
+
+    /* ── Chart 2: Brier Score by Subgroup ── */
+    charts.push(new Chart(document.getElementById('chartBrier'), {
+      type: 'bar',
+      data: {
+        labels: ['Overall', 'Black', 'White', 'Male', 'Female'],
+        datasets: [{
+          label: 'Brier Score',
+          data: [0.188, 0.195, 0.177, 0.194, 0.149],
+          backgroundColor: [c.accent, c.palette[0], c.palette[1], c.palette[2], c.palette[3]],
+          borderRadius: 4,
+          barThickness: 24
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: { title: { display: true, text: 'Brier Score (lower = better)', color: c.textSec }, grid: { color: c.grid }, ticks: { color: c.textSec }, min: 0.10, max: 0.22 },
+          y: { grid: { display: false }, ticks: { color: c.text } }
+        }
+      }
+    }));
+  }
+
+  pcDefaults();
+  buildCharts();
+  window.pcRebuild = function () { pcDefaults(); buildCharts(); };
+})();
+</script>
+</body>
+</html>
