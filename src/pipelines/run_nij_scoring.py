@@ -26,9 +26,14 @@ from src.features.build_nij_dynamic import build_dynamic_datasets
 from src.features.build_nij_static import build_static_datasets
 from src.models.calibration import IsotonicCalibrator, PlattCalibrator
 from src.models.xgb import train_xgb
-
-
-RANDOM_SEED = 42
+from src.pipelines._split_utils import (
+    RANDOM_SEED,
+    evaluate_metrics,
+    extract_target_column,
+    format_float,
+    prepare_feature_matrix,
+    split_train_cal_test,
+)
 
 
 def _repo_root() -> Path:
@@ -58,20 +63,6 @@ def _add_age_group(frame: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def _extract_target_column(ds: pd.DataFrame) -> str:
-    for candidate in ("y", "target"):
-        if candidate in ds.columns:
-            return candidate
-    raise ValueError("Unable to detect target column in dataset")
-
-
-def _prepare_feature_matrix(feature_frame: pd.DataFrame) -> pd.DataFrame:
-    model_frame = feature_frame.drop(columns=["ID"], errors="ignore")
-    x_matrix = pd.get_dummies(model_frame, dummy_na=True)
-    x_matrix = x_matrix.apply(pd.to_numeric, errors="coerce").fillna(0.0)
-    return x_matrix
-
-
 def _no_race_columns(frame: pd.DataFrame) -> pd.DataFrame:
     cols = [
         c
@@ -79,37 +70,6 @@ def _no_race_columns(frame: pd.DataFrame) -> pd.DataFrame:
         if c != "Race" and not str(c).startswith("Race_") and "race" not in str(c).lower()
     ]
     return frame[cols].copy()
-
-
-def _split_train_cal_test(y: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    from sklearn.model_selection import train_test_split
-
-    idx = np.arange(len(y))
-    train_idx, test_idx = train_test_split(
-        idx,
-        test_size=0.2,
-        random_state=RANDOM_SEED,
-        stratify=y,
-    )
-    fit_idx, cal_idx = train_test_split(
-        train_idx,
-        test_size=0.25,
-        random_state=RANDOM_SEED,
-        stratify=y[train_idx],
-    )
-    return fit_idx, cal_idx, test_idx
-
-
-def _evaluate(y_true: np.ndarray, y_prob: np.ndarray) -> dict[str, float]:
-    y_list = y_true.astype(int).tolist()
-    p_list = y_prob.astype(float).tolist()
-    return {
-        "brier": brier_score(y_list, p_list),
-        "auroc": auroc(y_list, p_list),
-        "auprc": auprc(y_list, p_list),
-        "log_loss": log_loss(y_list, p_list),
-        "ece": expected_calibration_error(y_list, p_list, n_bins=10),
-    }
 
 
 def _train_predict_xgb(
@@ -130,12 +90,6 @@ def _train_predict_xgb(
     if calibration == "isotonic":
         return IsotonicCalibrator().fit(p_cal_raw, y[cal_idx]).predict(p_test_raw)
     return np.clip(p_test_raw, 1e-6, 1.0 - 1e-6)
-
-
-def _format_float(value: float) -> str:
-    if np.isnan(value):
-        return "nan"
-    return f"{value:.5f}"
 
 
 def write_nij_scoring_report(best_models_path: Path | None = None, out_path: Path | None = None) -> Path:
@@ -173,10 +127,10 @@ def write_nij_scoring_report(best_models_path: Path | None = None, out_path: Pat
         params = dict(cfg.get("tuning", {}).get("best_params", {}))
 
         ds = _add_age_group(all_sets[dataset_key][horizon])
-        target_col = _extract_target_column(ds)
+        target_col = extract_target_column(ds)
         y = pd.to_numeric(ds[target_col], errors="coerce").fillna(0).astype(int).to_numpy()
         feature_frame = ds.drop(columns=[target_col]).copy()
-        fit_idx, cal_idx, test_idx = _split_train_cal_test(y)
+        fit_idx, cal_idx, test_idx = split_train_cal_test(y)
 
         test_frame = ds.iloc[test_idx].copy()
         y_test = y[test_idx].astype(int).tolist()
@@ -196,7 +150,7 @@ def write_nij_scoring_report(best_models_path: Path | None = None, out_path: Pat
         )
 
         for variant_name, variant_features in variants:
-            x_df = _prepare_feature_matrix(variant_features)
+            x_df, _ = prepare_feature_matrix(variant_features)
             x = x_df.to_numpy(dtype=float)
             p_test = _train_predict_xgb(
                 x=x,
@@ -207,7 +161,7 @@ def write_nij_scoring_report(best_models_path: Path | None = None, out_path: Pat
                 params=params,
                 calibration=calibration,
             )
-            metrics = _evaluate(y[test_idx], p_test)
+            metrics = evaluate_metrics(y[test_idx], p_test)
 
             # Per-sex scoring.
             per_sex_rows: list[list[str]] = []
@@ -236,11 +190,11 @@ def write_nij_scoring_report(best_models_path: Path | None = None, out_path: Pat
                     [
                         str(sex_label),
                         str(len(idx)),
-                        _format_float(brier_sub),
-                        _format_float(fpr_black),
-                        _format_float(fpr_white),
-                        _format_float(fp_term),
-                        _format_float(fair_acc),
+                        format_float(brier_sub),
+                        format_float(fpr_black),
+                        format_float(fpr_white),
+                        format_float(fp_term),
+                        format_float(fair_acc),
                     ]
                 )
 
@@ -253,9 +207,9 @@ def write_nij_scoring_report(best_models_path: Path | None = None, out_path: Pat
                     variant_name,
                     dataset_key,
                     calibration,
-                    _format_float(float(metrics["brier"])),
-                    _format_float(brier_avg),
-                    _format_float(fairacc_avg),
+                    format_float(float(metrics["brier"])),
+                    format_float(brier_avg),
+                    format_float(fairacc_avg),
                 ]
             )
 
@@ -265,11 +219,11 @@ def write_nij_scoring_report(best_models_path: Path | None = None, out_path: Pat
                     "",
                     "| Metric | Value |",
                     "|---|---:|",
-                    f"| Overall Brier | {_format_float(float(metrics['brier']))} |",
-                    f"| AUROC | {_format_float(float(metrics['auroc']))} |",
-                    f"| AUPRC | {_format_float(float(metrics['auprc']))} |",
-                    f"| Log loss | {_format_float(float(metrics['log_loss']))} |",
-                    f"| ECE | {_format_float(float(metrics['ece']))} |",
+                    f"| Overall Brier | {format_float(float(metrics['brier']))} |",
+                    f"| AUROC | {format_float(float(metrics['auroc']))} |",
+                    f"| AUPRC | {format_float(float(metrics['auprc']))} |",
+                    f"| Log loss | {format_float(float(metrics['log_loss']))} |",
+                    f"| ECE | {format_float(float(metrics['ece']))} |",
                     "",
                     "#### NIJ-style terms by sex (threshold=0.5)",
                     "",
@@ -283,8 +237,8 @@ def write_nij_scoring_report(best_models_path: Path | None = None, out_path: Pat
             lines.extend(
                 [
                     "",
-                    f"- Sex-average BS: `{_format_float(brier_avg)}`",
-                    f"- Sex-average FairAcc: `{_format_float(fairacc_avg)}`",
+                    f"- Sex-average BS: `{format_float(brier_avg)}`",
+                    f"- Sex-average FairAcc: `{format_float(fairacc_avg)}`",
                     "",
                 ]
             )

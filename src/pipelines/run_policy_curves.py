@@ -16,12 +16,14 @@ import numpy as np
 import pandas as pd
 
 from src.features.build_nij_static import build_static_datasets
+from src.pipelines._split_utils import (
+    extract_target_column,
+    prepare_feature_matrix,
+    split_train_cal_select_test,
+)
 from src.pipelines.run_operational_eval import (
     _binary_rates,
-    _extract_target_column,
     _load_best_models,
-    _prepare_feature_matrix,
-    _split_train_cal_test,
     _threshold_top_k,
     _train_predict_xgb,
 )
@@ -74,21 +76,24 @@ def write_policy_curves(
     params = dict(y1_cfg.get("tuning", {}).get("best_params", {}))
 
     ds = build_static_datasets()["y1"].copy()
-    target_col = _extract_target_column(ds)
+    target_col = extract_target_column(ds)
     y_full = pd.to_numeric(ds[target_col], errors="coerce").fillna(0).astype(int).to_numpy()
     feature_frame = ds.drop(columns=[target_col]).copy()
 
-    fit_idx, cal_idx, test_idx = _split_train_cal_test(y_full, seed=RANDOM_SEED)
-    x_df, _ = _prepare_feature_matrix(feature_frame)
+    # 4-way split: thresholds derived from select split
+    fit_idx, cal_idx, select_idx, test_idx = split_train_cal_select_test(y_full, seed=RANDOM_SEED)
+    x_df, _ = prepare_feature_matrix(feature_frame)
+    x_np = x_df.to_numpy(dtype=float)
+
+    p_select = _train_predict_xgb(
+        x=x_np, y=y_full,
+        fit_idx=fit_idx, cal_idx=cal_idx, eval_idx=select_idx,
+        params=params, calibration=calibration, seed=RANDOM_SEED,
+    )
     p_test = _train_predict_xgb(
-        x=x_df.to_numpy(dtype=float),
-        y=y_full,
-        fit_idx=fit_idx,
-        cal_idx=cal_idx,
-        test_idx=test_idx,
-        params=params,
-        calibration=calibration,
-        seed=RANDOM_SEED,
+        x=x_np, y=y_full,
+        fit_idx=fit_idx, cal_idx=cal_idx, eval_idx=test_idx,
+        params=params, calibration=calibration, seed=RANDOM_SEED,
     )
 
     y_test = y_full[test_idx].astype(int)
@@ -110,7 +115,8 @@ def write_policy_curves(
     white_ppv: list[float] = []
 
     for k in ks:
-        thr = _threshold_top_k(p_test, float(k))
+        # Threshold derived from select split, applied to test split
+        thr = _threshold_top_k(p_select, float(k))
         r_all = _binary_rates(y_test, p_test, threshold=thr)
         r_black = _binary_rates(y_test[black_mask], p_test[black_mask], threshold=thr) if np.any(black_mask) else {"fpr": np.nan, "fnr": np.nan, "ppv": np.nan}
         r_white = _binary_rates(y_test[white_mask], p_test[white_mask], threshold=thr) if np.any(white_mask) else {"fpr": np.nan, "fnr": np.nan, "ppv": np.nan}
@@ -176,7 +182,7 @@ def write_policy_curves(
         "",
         "Configuration:",
         f"- Model: XGBoost best config for Y1 static (`calibration={calibration}`)",
-        f"- Split seed: `{RANDOM_SEED}` (same fit/cal/test protocol as other NIJ reports)",
+        f"- Split seed: `{RANDOM_SEED}` (same fit/cal/select/test protocol as other NIJ reports)",
         f"- Group counts in test split: BLACK={int(np.sum(black_mask))}, WHITE={int(np.sum(white_mask))}",
         "",
         "Caution:",

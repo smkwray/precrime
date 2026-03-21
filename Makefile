@@ -6,7 +6,7 @@ ID_MOD ?= 200
 ID_REM ?= 0
 CHUNKSIZE ?= 300000
 
-.PHONY: test nij-baselines nij-xgb nij-factors compas fairness compas-fairness all remote-refresh
+.PHONY: test nij-baselines nij-xgb nij-xgb-cv nij-factors compas fairness compas-fairness all remote-refresh
 .PHONY: operational stability
 .PHONY: figures
 .PHONY: nij-scoring model-sweep ensemble-eval policy-curves export preflight
@@ -17,13 +17,16 @@ CHUNKSIZE ?= 300000
 .PHONY: individual-analysis
 
 test:
-		$(PY) -m unittest -q tests/test_env_policy.py tests/test_metrics.py tests/test_leakage.py tests/test_compas.py tests/test_nij_scoring.py tests/test_ncrp_37973_terms.py
+	$(PY) -B -m pytest tests/ -q
 
 nij-baselines:
 	$(PY) -m src.pipelines.run_nij --task baselines
 
 nij-xgb:
 	$(PY) -m src.pipelines.run_nij --task xgb --xgb-trials $(TRIALS)
+
+nij-xgb-cv:
+	$(PY) -m src.pipelines.run_nij --task xgb --cv --xgb-trials $(TRIALS)
 
 nij-factors:
 	$(PY) -m src.pipelines.run_nij_factor_report

@@ -29,10 +29,17 @@ from src.models.baselines import BaseRateModel, DemographicNaiveModel
 from src.models.calibration import IsotonicCalibrator, PlattCalibrator
 from src.models.lasso import LassoLogisticRegression
 from src.models.logistic import LogisticRegressionGD
-
-
-RANDOM_SEED = 42
-N_FOLDS = 5
+from src.pipelines._split_utils import (
+    RANDOM_SEED,
+    N_FOLDS,
+    build_cv_splits,
+    evaluate_metrics,
+    extract_target_column,
+    fit_calibration_split,
+    prepare_feature_matrix,
+    split_train_cal_select_test,
+    split_train_cal_test,
+)
 
 
 def _repo_root() -> Path:
@@ -63,47 +70,6 @@ def _add_age_group(frame: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def _extract_target_column(ds: pd.DataFrame) -> str:
-    for candidate in ("target", "y"):
-        if candidate in ds.columns:
-            return candidate
-    for col in ds.columns:
-        if "recidivism_arrest_year" in str(col).lower():
-            return str(col)
-    raise ValueError("Unable to detect target column in dataset")
-
-
-def _build_cv_splits(n_rows: int, n_folds: int = N_FOLDS, seed: int = RANDOM_SEED):
-    rng = np.random.default_rng(seed)
-    idx = np.arange(n_rows)
-    rng.shuffle(idx)
-    fold_sizes = np.full(n_folds, n_rows // n_folds, dtype=int)
-    fold_sizes[: n_rows % n_folds] += 1
-
-    splits = []
-    cursor = 0
-    for fold_size in fold_sizes:
-        val_idx = idx[cursor : cursor + fold_size]
-        train_idx = np.concatenate([idx[:cursor], idx[cursor + fold_size :]])
-        splits.append((train_idx, val_idx))
-        cursor += fold_size
-    return splits
-
-
-def _fit_calibration_split(train_idx: np.ndarray, seed: int) -> tuple[np.ndarray, np.ndarray]:
-    rng = np.random.default_rng(seed)
-    shuffled = train_idx.copy()
-    rng.shuffle(shuffled)
-
-    cut = max(1, int(0.8 * len(shuffled)))
-    fit_idx = shuffled[:cut]
-    cal_idx = shuffled[cut:]
-    if len(cal_idx) == 0:
-        cal_idx = fit_idx[-1:]
-        fit_idx = fit_idx[:-1]
-    if len(fit_idx) == 0:
-        fit_idx = cal_idx
-    return fit_idx, cal_idx
 
 
 def _standardize(x_train: np.ndarray, x_other: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -113,16 +79,6 @@ def _standardize(x_train: np.ndarray, x_other: np.ndarray) -> tuple[np.ndarray, 
     return (x_train - mu) / sigma, (x_other - mu) / sigma
 
 
-def _evaluate(y_true: np.ndarray, y_prob: np.ndarray) -> dict[str, float]:
-    y_list = y_true.astype(int).tolist()
-    p_list = y_prob.astype(float).tolist()
-    return {
-        "brier": brier_score(y_list, p_list),
-        "auroc": auroc(y_list, p_list),
-        "auprc": auprc(y_list, p_list),
-        "log_loss": log_loss(y_list, p_list),
-        "ece": expected_calibration_error(y_list, p_list, n_bins=10),
-    }
 
 
 def _save_calibration_plot_specs(
@@ -153,24 +109,23 @@ def _save_calibration_plot_specs(
         out_path.write_text(json.dumps(fig_spec, indent=2))
 
 
-def _prepare_feature_matrix(frame: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
-    model_frame = frame.drop(columns=["ID"], errors="ignore").copy()
-    x_df = pd.get_dummies(model_frame, dummy_na=True)
-    x_df = x_df.apply(pd.to_numeric, errors="coerce").fillna(0.0)
-    return x_df, x_df.columns.astype(str).tolist()
 
 
 def _model_probabilities(
     model_name: str,
     frame: pd.DataFrame,
-    x_matrix: np.ndarray,
     y: np.ndarray,
     splits,
 ) -> np.ndarray:
     pred = np.zeros(len(frame), dtype=float)
 
     for fold_i, (train_idx, val_idx) in enumerate(splits):
-        fit_idx, cal_idx = _fit_calibration_split(train_idx, seed=RANDOM_SEED + fold_i)
+        fit_idx, cal_idx = fit_calibration_split(train_idx, seed=RANDOM_SEED + fold_i)
+
+        # Fit encoding on training fold only (fix preprocessing leakage)
+        _, fit_cols = prepare_feature_matrix(frame.iloc[train_idx])
+        x_fold, _ = prepare_feature_matrix(frame, fit_columns=fit_cols)
+        x_matrix = x_fold.to_numpy(dtype=float)
 
         y_fit = y[fit_idx]
         y_cal = y[cal_idx]
@@ -223,24 +178,20 @@ def run_static_baselines() -> pd.DataFrame:
 
     for horizon, ds in sorted(datasets.items()):
         ds = _add_age_group(ds)
-        target_col = _extract_target_column(ds)
+        target_col = extract_target_column(ds)
         y = pd.to_numeric(ds[target_col], errors="coerce").fillna(0).astype(int).to_numpy()
         feature_frame = ds.drop(columns=[target_col]).copy()
 
-        x_df, _ = _prepare_feature_matrix(feature_frame)
-        x_np = x_df.to_numpy(dtype=float)
-
-        splits = _build_cv_splits(len(ds), n_folds=N_FOLDS, seed=RANDOM_SEED)
+        splits = build_cv_splits(len(ds), n_folds=N_FOLDS, seed=RANDOM_SEED)
 
         for model_name in model_order:
             y_prob = _model_probabilities(
                 model_name=model_name,
                 frame=feature_frame,
-                x_matrix=x_np,
                 y=y,
                 splits=splits,
             )
-            metrics = _evaluate(y, y_prob)
+            metrics = evaluate_metrics(y, y_prob)
             rows.append(
                 {
                     "dataset": "static",
@@ -305,7 +256,7 @@ def _save_bar_spec(path: Path, title: str, key_name: str, value_name: str, rows:
     path.write_text(json.dumps(spec, indent=2))
 
 
-def run_xgb_models(n_trials: int = 16) -> tuple[pd.DataFrame, dict[str, dict[str, object]]]:
+def run_xgb_models(n_trials: int = 16, seed: int = RANDOM_SEED) -> tuple[pd.DataFrame, dict[str, dict[str, object]]]:
     from sklearn.model_selection import train_test_split
 
     from src.models.xgb import feature_importance_table, shap_summary_table, train_xgb, tune_xgb
@@ -321,30 +272,24 @@ def run_xgb_models(n_trials: int = 16) -> tuple[pd.DataFrame, dict[str, dict[str
     for dataset_key, horizon_map in all_sets.items():
         for horizon, ds in sorted(horizon_map.items()):
             ds = _add_age_group(ds)
-            target_col = _extract_target_column(ds)
+            target_col = extract_target_column(ds)
 
             y = pd.to_numeric(ds[target_col], errors="coerce").fillna(0).astype(int).to_numpy()
             feature_frame = ds.drop(columns=[target_col]).copy()
-            x_df, feature_names = _prepare_feature_matrix(feature_frame)
+
+            # 4-way split: fit/cal/select/test
+            fit_idx, cal_idx, select_idx, test_idx = split_train_cal_select_test(y, seed=seed)
+
+            # Fit encoding on training data only (fix preprocessing leakage)
+            train_indices = np.concatenate([fit_idx, cal_idx, select_idx])
+            _, fit_columns = prepare_feature_matrix(feature_frame.iloc[train_indices])
+            x_df, feature_names = prepare_feature_matrix(feature_frame, fit_columns=fit_columns)
             x = x_df.to_numpy(dtype=float)
 
-            idx = np.arange(len(ds))
-            train_idx, test_idx = train_test_split(
-                idx,
-                test_size=0.2,
-                random_state=RANDOM_SEED,
-                stratify=y,
-            )
-            fit_idx, cal_idx = train_test_split(
-                train_idx,
-                test_size=0.25,
-                random_state=RANDOM_SEED,
-                stratify=y[train_idx],
-            )
             tune_train_idx, tune_val_idx = train_test_split(
                 fit_idx,
                 test_size=0.2,
-                random_state=RANDOM_SEED,
+                random_state=seed,
                 stratify=y[fit_idx],
             )
 
@@ -353,7 +298,7 @@ def run_xgb_models(n_trials: int = 16) -> tuple[pd.DataFrame, dict[str, dict[str
                 y_train=y[tune_train_idx],
                 x_valid=x[tune_val_idx],
                 y_valid=y[tune_val_idx],
-                seed=RANDOM_SEED,
+                seed=seed,
                 n_trials=n_trials,
             )
 
@@ -361,15 +306,27 @@ def run_xgb_models(n_trials: int = 16) -> tuple[pd.DataFrame, dict[str, dict[str
                 x_train=x[fit_idx],
                 y_train=y[fit_idx],
                 params=tune.best_params,
-                seed=RANDOM_SEED,
+                seed=seed,
             )
 
             p_cal_raw = model.predict_proba(x[cal_idx])[:, 1]
+            p_select_raw = model.predict_proba(x[select_idx])[:, 1]
             p_test_raw = model.predict_proba(x[test_idx])[:, 1]
 
             platt = PlattCalibrator().fit(p_cal_raw, y[cal_idx])
             isotonic = IsotonicCalibrator().fit(p_cal_raw, y[cal_idx])
 
+            # Evaluate calibration methods on select split for model selection
+            y_select = y[select_idx]
+            select_preds = {
+                "platt": platt.predict(p_select_raw),
+                "isotonic": isotonic.predict(p_select_raw),
+            }
+            select_scores: dict[str, dict[str, float]] = {}
+            for cal_name, p_sel in select_preds.items():
+                select_scores[cal_name] = evaluate_metrics(y_select, p_sel)
+
+            # Evaluate all variants on test split for reporting
             preds = {
                 "raw": p_test_raw,
                 "platt": platt.predict(p_test_raw),
@@ -378,7 +335,7 @@ def run_xgb_models(n_trials: int = 16) -> tuple[pd.DataFrame, dict[str, dict[str
 
             y_test = y[test_idx]
             for cal_name, p_test in preds.items():
-                metrics = _evaluate(y_test, p_test)
+                metrics = evaluate_metrics(y_test, p_test)
                 records.append(
                     {
                         "dataset": dataset_key,
@@ -410,28 +367,40 @@ def run_xgb_models(n_trials: int = 16) -> tuple[pd.DataFrame, dict[str, dict[str
                 rows=shap_rows,
             )
 
-            calibrated_rows = [r for r in records if r["dataset"] == dataset_key and r["horizon"] == horizon and r["calibration"] in {"platt", "isotonic"}]
-            best_row = min(calibrated_rows, key=lambda r: float(r["brier"]))
+            # Select best calibration using select-split Brier (not test-split)
+            best_cal_name = min(select_scores, key=lambda k: select_scores[k]["brier"])
+            best_test_row = next(
+                r for r in records
+                if r["dataset"] == dataset_key and r["horizon"] == horizon and r["calibration"] == best_cal_name
+            )
             best_key = str(horizon)
             prev = best_by_horizon.get(best_key)
-            if prev is None or float(best_row["brier"]) < float(prev["metrics"]["brier"]):
+            select_brier = select_scores[best_cal_name]["brier"]
+            if prev is None or select_brier < float(prev["select_metrics"]["brier"]):
                 best_by_horizon[best_key] = {
                     "dataset": dataset_key,
                     "horizon": horizon,
                     "model": "xgboost",
-                    "calibration": best_row["calibration"],
-                    "seed": RANDOM_SEED,
+                    "calibration": best_cal_name,
+                    "seed": seed,
                     "tuning": {
                         "n_trials": tune.n_trials,
                         "best_validation_brier": tune.best_score,
                         "best_params": tune.best_params,
                     },
+                    "select_metrics": {
+                        "brier": float(select_scores[best_cal_name]["brier"]),
+                        "auroc": float(select_scores[best_cal_name]["auroc"]),
+                        "auprc": float(select_scores[best_cal_name]["auprc"]),
+                        "log_loss": float(select_scores[best_cal_name]["log_loss"]),
+                        "ece": float(select_scores[best_cal_name]["ece"]),
+                    },
                     "metrics": {
-                        "brier": float(best_row["brier"]),
-                        "auroc": float(best_row["auroc"]),
-                        "auprc": float(best_row["auprc"]),
-                        "log_loss": float(best_row["log_loss"]),
-                        "ece": float(best_row["ece"]),
+                        "brier": float(best_test_row["brier"]),
+                        "auroc": float(best_test_row["auroc"]),
+                        "auprc": float(best_test_row["auprc"]),
+                        "log_loss": float(best_test_row["log_loss"]),
+                        "ece": float(best_test_row["ece"]),
                     },
                     "artifacts": {
                         "importance_plot": str(imp_path),
@@ -440,6 +409,30 @@ def run_xgb_models(n_trials: int = 16) -> tuple[pd.DataFrame, dict[str, dict[str
                 }
 
     return pd.DataFrame(records), best_by_horizon
+
+
+def run_xgb_models_cv(
+    n_trials: int = 16,
+    seeds: list[int] | None = None,
+) -> pd.DataFrame:
+    """Run XGBoost across multiple seed splits for comparison with CV baselines."""
+    seeds = seeds or [42, 43, 44, 45, 46]
+    all_records = []
+    for seed_val in seeds:
+        results, _ = run_xgb_models(n_trials=n_trials, seed=seed_val)
+        results["cv_seed"] = seed_val
+        all_records.append(results)
+    combined = pd.concat(all_records, ignore_index=True)
+
+    # Aggregate mean/std per (dataset, horizon, calibration)
+    group_cols = ["dataset", "horizon", "calibration"]
+    metric_cols = ["brier", "auroc", "auprc", "log_loss", "ece"]
+    agg_dict = {}
+    for m in metric_cols:
+        agg_dict[f"{m}_mean"] = (m, "mean")
+        agg_dict[f"{m}_std"] = (m, "std")
+    summary = combined.groupby(group_cols).agg(**agg_dict).reset_index()
+    return summary
 
 
 def write_xgb_outputs(results: pd.DataFrame, best_by_horizon: dict[str, dict[str, object]]) -> tuple[Path, Path]:
@@ -455,6 +448,28 @@ def write_xgb_outputs(results: pd.DataFrame, best_by_horizon: dict[str, dict[str
     best_path = _reports_dir() / "xgb_best_models.json"
     best_path.write_text(json.dumps(best_by_horizon, indent=2))
     return leaderboard, best_path
+
+
+def write_xgb_cv_leaderboard(summary: pd.DataFrame, path: Path | None = None) -> Path:
+    out_path = path or (_reports_dir() / "xgb_cv_leaderboard.md")
+    lines = [
+        "# NIJ XGBoost CV Leaderboard (Multi-Seed)",
+        "",
+        "Mean ± std across seeds. Primary sort: mean Brier score.",
+        "",
+        "| Dataset | Horizon | Calibration | Brier (mean±std) | AUROC (mean±std) | AUPRC (mean±std) |",
+        "|---|---|---|---|---|---|",
+    ]
+    ordered = summary.sort_values(["dataset", "horizon", "brier_mean"], ascending=[True, True, True])
+    for _, row in ordered.iterrows():
+        lines.append(
+            f"| {row['dataset']} | {row['horizon']} | {row['calibration']} "
+            f"| {row['brier_mean']:.5f}±{row['brier_std']:.5f} "
+            f"| {row['auroc_mean']:.5f}±{row['auroc_std']:.5f} "
+            f"| {row['auprc_mean']:.5f}±{row['auprc_std']:.5f} |"
+        )
+    out_path.write_text("\n".join(lines))
+    return out_path
 
 
 def _load_best_xgb_models(path: Path | None = None) -> dict[str, dict[str, object]]:
@@ -474,23 +489,6 @@ def _apply_calibrator(name: str, p_cal: np.ndarray, y_cal: np.ndarray, p_eval: n
     return np.clip(p_eval, 1e-6, 1.0 - 1e-6)
 
 
-def _split_train_cal_test(y: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    from sklearn.model_selection import train_test_split
-
-    idx = np.arange(len(y))
-    train_idx, test_idx = train_test_split(
-        idx,
-        test_size=0.2,
-        random_state=RANDOM_SEED,
-        stratify=y,
-    )
-    fit_idx, cal_idx = train_test_split(
-        train_idx,
-        test_size=0.25,
-        random_state=RANDOM_SEED,
-        stratify=y[train_idx],
-    )
-    return fit_idx, cal_idx, test_idx
 
 
 def _train_predict_xgb(
@@ -581,17 +579,22 @@ def run_fairness_audit() -> Path:
         best_params = dict(cfg["tuning"]["best_params"])
 
         ds = _add_age_group(all_sets[dataset_key][horizon])
-        target_col = _extract_target_column(ds)
+        target_col = extract_target_column(ds)
         y = pd.to_numeric(ds[target_col], errors="coerce").fillna(0).astype(int).to_numpy()
         feature_frame = ds.drop(columns=[target_col]).copy()
-        fit_idx, cal_idx, test_idx = _split_train_cal_test(y)
+        fit_idx, cal_idx, test_idx = split_train_cal_test(y)
 
-        x_with_race, _ = _prepare_feature_matrix(feature_frame)
+        # Fit encoding on training data only
+        train_frame = feature_frame.iloc[np.concatenate([fit_idx, cal_idx])]
+        _, fit_cols_with = prepare_feature_matrix(train_frame)
+        x_with_race, _ = prepare_feature_matrix(feature_frame, fit_columns=fit_cols_with)
         no_race_cols = [
             c for c in feature_frame.columns
             if c != "Race" and not str(c).startswith("Race_") and "race" not in str(c).lower()
         ]
-        x_without_race, _ = _prepare_feature_matrix(feature_frame[no_race_cols].copy())
+        no_race_frame = feature_frame[no_race_cols].copy()
+        _, fit_cols_no_race = prepare_feature_matrix(train_frame[no_race_cols].copy())
+        x_without_race, _ = prepare_feature_matrix(no_race_frame, fit_columns=fit_cols_no_race)
 
         p_with = _train_predict_xgb(
             x_df=x_with_race,
@@ -620,8 +623,8 @@ def run_fairness_audit() -> Path:
             "age_group": test_frame["age_group"].fillna("Unknown").astype(str).tolist(),
         }
 
-        overall_with = _evaluate(np.asarray(y_test), p_with)
-        overall_without = _evaluate(np.asarray(y_test), p_without)
+        overall_with = evaluate_metrics(np.asarray(y_test), p_with)
+        overall_without = evaluate_metrics(np.asarray(y_test), p_without)
         better_variant = "with_race" if overall_with["brier"] <= overall_without["brier"] else "without_race"
         p_main = p_with.tolist() if better_variant == "with_race" else p_without.tolist()
 
@@ -655,8 +658,9 @@ def run_fairness_audit() -> Path:
 
             race_frame = feature_frame.loc[race_train_mask].drop(columns=[c for c in ["Race"] if c in feature_frame.columns]).copy()
             race_y = y[race_train_mask.to_numpy()]
-            race_x, _ = _prepare_feature_matrix(race_frame)
-            rf_idx, rc_idx, rt_idx = _split_train_cal_test(race_y)
+            rf_idx, rc_idx, rt_idx = split_train_cal_test(race_y)
+            _, race_fit_cols = prepare_feature_matrix(race_frame.iloc[np.concatenate([rf_idx, rc_idx])])
+            race_x, _ = prepare_feature_matrix(race_frame, fit_columns=race_fit_cols)
             p_race = _train_predict_xgb(
                 x_df=race_x,
                 y=race_y,
@@ -748,6 +752,8 @@ def main() -> None:
         default=int(os.getenv("PRECRIME_XGB_TRIALS", "16")),
         help="Optuna trial count per feature-set/horizon",
     )
+    parser.add_argument("--cv", action="store_true", help="Run XGBoost with multi-seed splits")
+    parser.add_argument("--cv-seeds", type=str, default="42,43,44,45,46", help="Comma-separated seeds for CV mode")
     args = parser.parse_args()
 
     if args.task in {"baselines", "all"}:
@@ -757,11 +763,18 @@ def main() -> None:
         print(baseline_results.sort_values(["dataset", "horizon", "brier"]).to_string(index=False))
 
     if args.task in {"xgb", "all"}:
-        xgb_results, best = run_xgb_models(n_trials=args.xgb_trials)
-        lb_path, best_path = write_xgb_outputs(xgb_results, best)
-        print(f"wrote xgb leaderboard: {lb_path}")
-        print(f"wrote xgb best-model config: {best_path}")
-        print(xgb_results.sort_values(["dataset", "horizon", "brier"]).to_string(index=False))
+        if args.cv:
+            cv_seeds = [int(s) for s in args.cv_seeds.split(",")]
+            cv_summary = run_xgb_models_cv(n_trials=args.xgb_trials, seeds=cv_seeds)
+            cv_path = write_xgb_cv_leaderboard(cv_summary)
+            print(f"wrote xgb CV leaderboard: {cv_path}")
+            print(cv_summary.to_string(index=False))
+        else:
+            xgb_results, best = run_xgb_models(n_trials=args.xgb_trials)
+            lb_path, best_path = write_xgb_outputs(xgb_results, best)
+            print(f"wrote xgb leaderboard: {lb_path}")
+            print(f"wrote xgb best-model config: {best_path}")
+            print(xgb_results.sort_values(["dataset", "horizon", "brier"]).to_string(index=False))
 
     if args.task in {"fairness", "all"}:
         report_path = run_fairness_audit()

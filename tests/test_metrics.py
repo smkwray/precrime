@@ -1,5 +1,7 @@
 import unittest
 
+import numpy as np
+
 from src.eval.fairness import (
     calibration_by_group,
     equalized_odds_gaps,
@@ -145,6 +147,37 @@ class TestMetrics(unittest.TestCase):
         for fig in (fig1, fig2, fig3, fig4):
             self.assertIsInstance(fig, dict)
             self.assertIn("title", fig)
+
+
+class TestMetricsVsSklearn(unittest.TestCase):
+    """Verify custom metrics match sklearn reference implementations."""
+
+    def test_auroc_matches_sklearn(self):
+        from sklearn.metrics import roc_auc_score
+        rng = np.random.default_rng(123)
+        y_true = rng.integers(0, 2, size=500).tolist()
+        y_prob = rng.uniform(0, 1, size=500).tolist()
+        custom = auroc(y_true, y_prob)
+        reference = roc_auc_score(y_true, y_prob)
+        self.assertAlmostEqual(custom, reference, places=6)
+
+    def test_brier_matches_sklearn(self):
+        from sklearn.metrics import brier_score_loss
+        rng = np.random.default_rng(456)
+        y_true = rng.integers(0, 2, size=500).tolist()
+        y_prob = rng.uniform(0, 1, size=500).tolist()
+        custom = brier_score(y_true, y_prob)
+        reference = brier_score_loss(y_true, y_prob)
+        self.assertAlmostEqual(custom, reference, places=6)
+
+    def test_log_loss_matches_sklearn(self):
+        from sklearn.metrics import log_loss as sklearn_ll
+        rng = np.random.default_rng(789)
+        y_true = rng.integers(0, 2, size=500).tolist()
+        y_prob = np.clip(rng.uniform(0, 1, size=500), 1e-15, 1 - 1e-15).tolist()
+        custom = log_loss(y_true, y_prob)
+        reference = sklearn_ll(y_true, y_prob)
+        self.assertAlmostEqual(custom, reference, places=5)
 
 
 if __name__ == "__main__":

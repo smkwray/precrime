@@ -20,6 +20,12 @@ from src.features.build_nij_dynamic import build_dynamic_datasets
 from src.features.build_nij_static import build_static_datasets
 from src.models.calibration import IsotonicCalibrator, PlattCalibrator
 from src.models.xgb import train_xgb
+from src.pipelines._split_utils import (
+    extract_target_column,
+    format_float,
+    prepare_feature_matrix,
+    split_train_cal_select_test,
+)
 
 
 RANDOM_SEED_DEFAULT = 42
@@ -42,20 +48,6 @@ def _load_best_models(path: Path | None = None) -> dict[str, dict[str, object]]:
     return json.loads(resolved.read_text())
 
 
-def _extract_target_column(ds: pd.DataFrame) -> str:
-    for candidate in ("y", "target"):
-        if candidate in ds.columns:
-            return candidate
-    raise ValueError("Unable to detect target column in dataset")
-
-
-def _prepare_feature_matrix(feature_frame: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
-    model_frame = feature_frame.drop(columns=["ID"], errors="ignore")
-    x_matrix = pd.get_dummies(model_frame, dummy_na=True)
-    x_matrix = x_matrix.apply(pd.to_numeric, errors="coerce").fillna(0.0)
-    return x_matrix, x_matrix.columns.astype(str).tolist()
-
-
 def _drop_race_feature(frame: pd.DataFrame) -> pd.DataFrame:
     out = frame.copy()
     if "Race" in out.columns:
@@ -63,50 +55,26 @@ def _drop_race_feature(frame: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def _split_train_cal_test(y: np.ndarray, seed: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    from sklearn.model_selection import train_test_split
-
-    idx = np.arange(len(y))
-    train_idx, test_idx = train_test_split(
-        idx,
-        test_size=0.2,
-        random_state=seed,
-        stratify=y,
-    )
-    fit_idx, cal_idx = train_test_split(
-        train_idx,
-        test_size=0.25,
-        random_state=seed,
-        stratify=y[train_idx],
-    )
-    return fit_idx, cal_idx, test_idx
-
-
 def _train_predict_xgb(
     x: np.ndarray,
     y: np.ndarray,
     fit_idx: np.ndarray,
     cal_idx: np.ndarray,
-    test_idx: np.ndarray,
+    eval_idx: np.ndarray,
     params: dict[str, object],
     calibration: str,
     seed: int,
 ) -> np.ndarray:
+    """Train XGBoost, calibrate, and return predictions on eval_idx."""
     model = train_xgb(x_train=x[fit_idx], y_train=y[fit_idx], params=params, seed=seed)
     p_cal_raw = model.predict_proba(x[cal_idx])[:, 1]
-    p_test_raw = model.predict_proba(x[test_idx])[:, 1]
+    p_eval_raw = model.predict_proba(x[eval_idx])[:, 1]
 
     if calibration == "platt":
-        return PlattCalibrator().fit(p_cal_raw, y[cal_idx]).predict(p_test_raw)
+        return PlattCalibrator().fit(p_cal_raw, y[cal_idx]).predict(p_eval_raw)
     if calibration == "isotonic":
-        return IsotonicCalibrator().fit(p_cal_raw, y[cal_idx]).predict(p_test_raw)
-    return np.clip(p_test_raw, 1e-6, 1.0 - 1e-6)
-
-
-def _format_float(value: float) -> str:
-    if np.isnan(value):
-        return "nan"
-    return f"{value:.5f}"
+        return IsotonicCalibrator().fit(p_cal_raw, y[cal_idx]).predict(p_eval_raw)
+    return np.clip(p_eval_raw, 1e-6, 1.0 - 1e-6)
 
 
 def _binary_rates(y_true: np.ndarray, y_prob: np.ndarray, threshold: float) -> dict[str, float]:
@@ -198,16 +166,16 @@ def write_operational_report(best_models_path: Path | None = None, out_path: Pat
         "This report summarizes prediction quality and subgroup error rates under several thresholding policies.",
         "It is meant to be easier to interpret than a single fixed cutoff; it does **not** choose an operational threshold for you.",
         "",
-        "## What “prediction success” means (plain language)",
+        '## What "prediction success" means (plain language)',
         "- **AUROC**: how well the model ranks higher-risk people above lower-risk people (0.5 = random; 1.0 = perfect ranking).",
         "- **Brier score**: average squared error of predicted probabilities (lower = better probability accuracy).",
         "- **FPR/FNR/PPV** below depend on a thresholding policy; they are not intrinsic model properties.",
         "",
         "## Thresholding policies shown",
         "- `t=0.5`: fixed threshold at 0.5 (mainly illustrative).",
-        "- `top10%`: flag the top 10% highest predicted risks (threshold derived from the test-set distribution).",
-        "- `top20%`: flag the top 20% highest predicted risks (threshold derived from the test-set distribution).",
-        "- `FPR<=0.06`: choose the **highest** threshold that achieves overall FPR ≤ 6% on the test set (grid search).",
+        "- `top10%`: flag the top 10% highest predicted risks (threshold derived from the held-out selection split).",
+        "- `top20%`: flag the top 20% highest predicted risks (threshold derived from the held-out selection split).",
+        "- `FPR<=0.06`: choose the **highest** threshold that achieves overall FPR ≤ 6% on the held-out selection split (grid search).",
         "",
         f"Random seed for split/train/calibration: `{seed}`.",
         "",
@@ -220,12 +188,14 @@ def write_operational_report(best_models_path: Path | None = None, out_path: Pat
         params = cfg.get("tuning", {}).get("best_params", {})
 
         ds = all_sets[dataset_key][horizon].copy()
-        target_col = _extract_target_column(ds)
+        target_col = extract_target_column(ds)
         y = pd.to_numeric(ds[target_col], errors="coerce").fillna(0).astype(int).to_numpy()
 
-        fit_idx, cal_idx, test_idx = _split_train_cal_test(y, seed=seed)
+        # 4-way split: thresholds derived from select split, evaluated on test split
+        fit_idx, cal_idx, select_idx, test_idx = split_train_cal_select_test(y, seed=seed)
         test_frame = ds.iloc[test_idx].copy()
         y_test = y[test_idx].astype(int)
+        y_select = y[select_idx].astype(int)
 
         feature_frame = ds.drop(columns=[target_col]).copy()
 
@@ -235,17 +205,19 @@ def write_operational_report(best_models_path: Path | None = None, out_path: Pat
         ]
 
         for variant_name, variant_features in variants:
-            x_df, _ = _prepare_feature_matrix(variant_features)
+            x_df, _ = prepare_feature_matrix(variant_features)
             x = x_df.to_numpy(dtype=float)
+
+            # Get predictions on both select and test splits
+            p_select = _train_predict_xgb(
+                x=x, y=y,
+                fit_idx=fit_idx, cal_idx=cal_idx, eval_idx=select_idx,
+                params=dict(params), calibration=calibration, seed=seed,
+            )
             p_test = _train_predict_xgb(
-                x=x,
-                y=y,
-                fit_idx=fit_idx,
-                cal_idx=cal_idx,
-                test_idx=test_idx,
-                params=dict(params),
-                calibration=calibration,
-                seed=seed,
+                x=x, y=y,
+                fit_idx=fit_idx, cal_idx=cal_idx, eval_idx=test_idx,
+                params=dict(params), calibration=calibration, seed=seed,
             )
 
             metrics = {
@@ -262,21 +234,21 @@ def write_operational_report(best_models_path: Path | None = None, out_path: Pat
                     "",
                     "| Metric | Value |",
                     "|---|---:|",
-                    f"| Brier | {_format_float(float(metrics['brier']))} |",
-                    f"| AUROC | {_format_float(float(metrics['auroc']))} |",
-                    f"| AUPRC | {_format_float(float(metrics['auprc']))} |",
-                    f"| Log loss | {_format_float(float(metrics['log_loss']))} |",
-                    f"| ECE | {_format_float(float(metrics['ece']))} |",
+                    f"| Brier | {format_float(float(metrics['brier']))} |",
+                    f"| AUROC | {format_float(float(metrics['auroc']))} |",
+                    f"| AUPRC | {format_float(float(metrics['auprc']))} |",
+                    f"| Log loss | {format_float(float(metrics['log_loss']))} |",
+                    f"| ECE | {format_float(float(metrics['ece']))} |",
                     "",
                 ]
             )
 
-            # Threshold policies
+            # Threshold policies — derived from select split, applied to test split
             thresholds: list[tuple[str, float]] = [
                 ("t=0.5", 0.5),
-                ("top10%", _threshold_top_k(p_test, 0.10)),
-                ("top20%", _threshold_top_k(p_test, 0.20)),
-                ("FPR<=0.06", _threshold_target_fpr(y_test, p_test, 0.06)),
+                ("top10%", _threshold_top_k(p_select, 0.10)),
+                ("top20%", _threshold_top_k(p_select, 0.20)),
+                ("FPR<=0.06", _threshold_target_fpr(y_select, p_select, 0.06)),
             ]
 
             # Race breakdown if present
@@ -302,7 +274,7 @@ def write_operational_report(best_models_path: Path | None = None, out_path: Pat
                         r = _binary_rates(y_sub, p_sub, thr)
                         lines.append(
                             "| "
-                            + f"{label} | {len(idx)} | {int(r['fp'])} | {int(r['fn'])} | {_format_float(r['fpr'])} | {_format_float(r['fnr'])} | {_format_float(r['ppv'])} | {_format_float(r['tpr'])} | {_format_float(r['selection'])} |"
+                            + f"{label} | {len(idx)} | {int(r['fp'])} | {int(r['fn'])} | {format_float(r['fpr'])} | {format_float(r['fnr'])} | {format_float(r['ppv'])} | {format_float(r['tpr'])} | {format_float(r['selection'])} |"
                         )
                     lines.append("")
 

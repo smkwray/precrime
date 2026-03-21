@@ -20,9 +20,14 @@ from src.features.build_nij_dynamic import build_dynamic_datasets
 from src.features.build_nij_static import build_static_datasets
 from src.models.calibration import IsotonicCalibrator, PlattCalibrator
 from src.models.xgb import train_xgb
-
-
-SPLIT_SEED = 42
+from src.pipelines._split_utils import (
+    RANDOM_SEED,
+    evaluate_metrics,
+    extract_target_column,
+    format_float,
+    prepare_feature_matrix,
+    split_train_cal_test,
+)
 
 
 def _repo_root() -> Path:
@@ -50,51 +55,6 @@ def _add_age_group(frame: pd.DataFrame) -> pd.DataFrame:
         out["age_group"] = "Unknown"
     out["age_group"] = out["age_group"].replace({"nan": "Unknown"}).fillna("Unknown")
     return out
-
-
-def _extract_target_column(ds: pd.DataFrame) -> str:
-    for candidate in ("y", "target"):
-        if candidate in ds.columns:
-            return candidate
-    raise ValueError("Unable to detect target column in dataset")
-
-
-def _prepare_feature_matrix(feature_frame: pd.DataFrame) -> pd.DataFrame:
-    model_frame = feature_frame.drop(columns=["ID"], errors="ignore")
-    x_matrix = pd.get_dummies(model_frame, dummy_na=True)
-    x_matrix = x_matrix.apply(pd.to_numeric, errors="coerce").fillna(0.0)
-    return x_matrix
-
-
-def _split_train_cal_test(y: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    from sklearn.model_selection import train_test_split
-
-    idx = np.arange(len(y))
-    train_idx, test_idx = train_test_split(
-        idx,
-        test_size=0.2,
-        random_state=SPLIT_SEED,
-        stratify=y,
-    )
-    fit_idx, cal_idx = train_test_split(
-        train_idx,
-        test_size=0.25,
-        random_state=SPLIT_SEED,
-        stratify=y[train_idx],
-    )
-    return fit_idx, cal_idx, test_idx
-
-
-def _evaluate_overall(y_true: np.ndarray, y_prob: np.ndarray) -> dict[str, float]:
-    y_list = y_true.astype(int).tolist()
-    p_list = y_prob.astype(float).tolist()
-    return {
-        "brier": brier_score(y_list, p_list),
-        "auroc": auroc(y_list, p_list),
-        "auprc": auprc(y_list, p_list),
-        "log_loss": log_loss(y_list, p_list),
-        "ece": expected_calibration_error(y_list, p_list, n_bins=10),
-    }
 
 
 def _nij_terms(y_true: list[int], y_prob: list[float], sex: list[str], race: list[str]) -> dict[str, float]:
@@ -133,12 +93,6 @@ def _nij_terms(y_true: list[int], y_prob: list[float], sex: list[str], race: lis
     }
 
 
-def _format_float(value: float) -> str:
-    if np.isnan(value):
-        return "nan"
-    return f"{value:.5f}"
-
-
 def _calibrate(name: str, p_cal_raw: np.ndarray, y_cal: np.ndarray, p_test_raw: np.ndarray) -> np.ndarray:
     if name == "platt":
         return PlattCalibrator().fit(p_cal_raw, y_cal).predict(p_test_raw)
@@ -166,7 +120,7 @@ def write_ensemble_report(
         "",
         f"Generated: {datetime.now().astimezone().strftime('%Y-%m-%d %H:%M %Z')}",
         "",
-        f"Split seed: `{SPLIT_SEED}` (fixed). Model seeds ensembled: `{','.join(str(s) for s in seeds)}`.",
+        f"Split seed: `{RANDOM_SEED}` (fixed). Model seeds ensembled: `{','.join(str(s) for s in seeds)}`.",
         "",
         "Ensembling method: average predicted probabilities across model seeds, then optionally recalibrate once (Platt / isotonic).",
         "",
@@ -181,12 +135,12 @@ def write_ensemble_report(
         baseline_cal = str(cfg.get("calibration", "raw"))
 
         ds = _add_age_group(all_sets[dataset_key][horizon])
-        target_col = _extract_target_column(ds)
+        target_col = extract_target_column(ds)
         y = pd.to_numeric(ds[target_col], errors="coerce").fillna(0).astype(int).to_numpy()
         feature_frame = ds.drop(columns=[target_col]).copy()
-        fit_idx, cal_idx, test_idx = _split_train_cal_test(y)
+        fit_idx, cal_idx, test_idx = split_train_cal_test(y)
 
-        x_df = _prepare_feature_matrix(feature_frame)
+        x_df, _ = prepare_feature_matrix(feature_frame)
         x = x_df.to_numpy(dtype=float)
 
         test_frame = ds.iloc[test_idx].copy()
@@ -199,13 +153,13 @@ def write_ensemble_report(
         p_cal_raw = model.predict_proba(x[cal_idx])[:, 1]
         p_test_raw = model.predict_proba(x[test_idx])[:, 1]
         p_base = _calibrate(baseline_cal, p_cal_raw, y[cal_idx], p_test_raw)
-        overall = _evaluate_overall(y[test_idx], p_base)
+        overall = evaluate_metrics(y[test_idx], p_base)
         nij = _nij_terms(y_test, p_base.astype(float).tolist(), sex_vals, race_vals)
         lines.append(
             "| "
             + f"{horizon.upper()} | {dataset_key} | single_seed42 | {baseline_cal} | "
-            + f"{_format_float(nij['bs_sex_avg'])} | {_format_float(nij['fairacc_sex_avg'])} | {_format_float(overall['brier'])} | "
-            + f"{_format_float(overall['auroc'])} | {_format_float(overall['auprc'])} | {_format_float(overall['ece'])} |"
+            + f"{format_float(nij['bs_sex_avg'])} | {format_float(nij['fairacc_sex_avg'])} | {format_float(overall['brier'])} | "
+            + f"{format_float(overall['auroc'])} | {format_float(overall['auprc'])} | {format_float(overall['ece'])} |"
         )
 
         # Seed ensemble: average raw probs.
@@ -221,13 +175,13 @@ def write_ensemble_report(
 
         for cal_name in ("raw", "platt", "isotonic"):
             p_ens = _calibrate(cal_name, p_cal_mean, y[cal_idx], p_test_mean)
-            overall = _evaluate_overall(y[test_idx], p_ens)
+            overall = evaluate_metrics(y[test_idx], p_ens)
             nij = _nij_terms(y_test, p_ens.astype(float).tolist(), sex_vals, race_vals)
             lines.append(
                 "| "
                 + f"{horizon.upper()} | {dataset_key} | seed_ensemble | {cal_name} | "
-                + f"{_format_float(nij['bs_sex_avg'])} | {_format_float(nij['fairacc_sex_avg'])} | {_format_float(overall['brier'])} | "
-                + f"{_format_float(overall['auroc'])} | {_format_float(overall['auprc'])} | {_format_float(overall['ece'])} |"
+                + f"{format_float(nij['bs_sex_avg'])} | {format_float(nij['fairacc_sex_avg'])} | {format_float(overall['brier'])} | "
+                + f"{format_float(overall['auroc'])} | {format_float(overall['auprc'])} | {format_float(overall['ece'])} |"
             )
 
     lines.extend(

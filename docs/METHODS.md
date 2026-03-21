@@ -171,3 +171,6 @@ All version constraints are from the project's requirements files.
 | shap | >= 0.44, < 1 |
 
 **Visualization (`requirements-viz.txt`):** matplotlib (for figure generation only).
+
+Exact versions used for the results in this repo are recorded in `requirements-lock.txt`.
+To reproduce, install from the lock file: `pip install -r requirements-lock.txt`.

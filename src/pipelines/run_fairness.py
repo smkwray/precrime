@@ -27,9 +27,14 @@ from src.features.build_nij_dynamic import build_dynamic_datasets
 from src.features.build_nij_static import build_static_datasets
 from src.models.calibration import IsotonicCalibrator, PlattCalibrator
 from src.models.xgb import train_xgb
-
-
-RANDOM_SEED = 42
+from src.pipelines._split_utils import (
+    RANDOM_SEED,
+    evaluate_metrics,
+    extract_target_column,
+    format_float,
+    prepare_feature_matrix,
+    split_train_cal_test,
+)
 
 
 def _repo_root() -> Path:
@@ -59,62 +64,11 @@ def _add_age_group(frame: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def _extract_target_column(ds: pd.DataFrame) -> str:
-    for candidate in ("y", "target"):
-        if candidate in ds.columns:
-            return candidate
-    raise ValueError("Unable to detect target column in dataset")
-
-
-def _prepare_feature_matrix(feature_frame: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
-    model_frame = feature_frame.drop(columns=["ID"], errors="ignore")
-    x_matrix = pd.get_dummies(model_frame, dummy_na=True)
-    x_matrix = x_matrix.apply(pd.to_numeric, errors="coerce").fillna(0.0)
-    return x_matrix, x_matrix.columns.astype(str).tolist()
-
-
 def _drop_race_feature(frame: pd.DataFrame) -> pd.DataFrame:
     out = frame.copy()
     if "Race" in out.columns:
         out = out.drop(columns=["Race"])
     return out
-
-
-def _split_train_cal_test(y: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    from sklearn.model_selection import train_test_split
-
-    idx = np.arange(len(y))
-    train_idx, test_idx = train_test_split(
-        idx,
-        test_size=0.2,
-        random_state=RANDOM_SEED,
-        stratify=y,
-    )
-    fit_idx, cal_idx = train_test_split(
-        train_idx,
-        test_size=0.25,
-        random_state=RANDOM_SEED,
-        stratify=y[train_idx],
-    )
-    return fit_idx, cal_idx, test_idx
-
-
-def _evaluate(y_true: np.ndarray, y_prob: np.ndarray) -> dict[str, float]:
-    y_list = y_true.astype(int).tolist()
-    p_list = y_prob.astype(float).tolist()
-    return {
-        "brier": brier_score(y_list, p_list),
-        "auroc": auroc(y_list, p_list),
-        "auprc": auprc(y_list, p_list),
-        "log_loss": log_loss(y_list, p_list),
-        "ece": expected_calibration_error(y_list, p_list, n_bins=10),
-    }
-
-
-def _format_float(value: float) -> str:
-    if np.isnan(value):
-        return "nan"
-    return f"{value:.5f}"
 
 
 def _subgroup_table_lines(
@@ -162,21 +116,21 @@ def _subgroup_table_lines(
                 alpha=bootstrap_alpha,
                 random_state=RANDOM_SEED,
             )
-            ci_text = f"{_format_float(float(ci_brier['lower']))}–{_format_float(float(ci_brier['upper']))}"
+            ci_text = f"{format_float(float(ci_brier['lower']))}–{format_float(float(ci_brier['upper']))}"
         else:
             ci_text = ""
 
         lines.append(
             "| "
-            + f"{label} | {counts.get(label, 0)} | {_format_float(sb[label])} | {ci_text} | {_format_float(sa[label])} | {_format_float(sp[label])} |"
+            + f"{label} | {counts.get(label, 0)} | {format_float(sb[label])} | {ci_text} | {format_float(sa[label])} | {format_float(sp[label])} |"
         )
 
     lines.extend(
         [
             "",
-            f"- Equalized-odds gaps @0.5: `fpr_gap={_format_float(float(eo['fpr_gap']))}`, `fnr_gap={_format_float(float(eo['fnr_gap']))}`, `max={_format_float(float(eo['eo_gap_max']))}`",
-            f"- Predictive parity proxy @0.5: `ppv_gap={_format_float(float(pp['ppv_gap']))}`",
-            f"- Threshold sweep gaps (0..1 step 0.05): `fpr_gap_max={_format_float(float(gaps['fpr_gap_max']))}`, `fpr_gap_mean={_format_float(float(gaps['fpr_gap_mean']))}`, `fnr_gap_max={_format_float(float(gaps['fnr_gap_max']))}`, `fnr_gap_mean={_format_float(float(gaps['fnr_gap_mean']))}`",
+            f"- Equalized-odds gaps @0.5: `fpr_gap={format_float(float(eo['fpr_gap']))}`, `fnr_gap={format_float(float(eo['fnr_gap']))}`, `max={format_float(float(eo['eo_gap_max']))}`",
+            f"- Predictive parity proxy @0.5: `ppv_gap={format_float(float(pp['ppv_gap']))}`",
+            f"- Threshold sweep gaps (0..1 step 0.05): `fpr_gap_max={format_float(float(gaps['fpr_gap_max']))}`, `fpr_gap_mean={format_float(float(gaps['fpr_gap_mean']))}`, `fnr_gap_max={format_float(float(gaps['fnr_gap_max']))}`, `fnr_gap_mean={format_float(float(gaps['fnr_gap_mean']))}`",
             "",
         ]
     )
@@ -197,7 +151,7 @@ def _subgroup_table_lines(
             lines.append(
                 "| "
                 + f"{label} | {counts.get(label, 0)} | {int(round(fp)) if not np.isnan(fp) else 'nan'} | {int(round(fn)) if not np.isnan(fn) else 'nan'} | "
-                + f"{_format_float(float(row.get('fpr', float('nan'))))} | {_format_float(float(row.get('fnr', float('nan'))))} | {_format_float(float(row.get('precision', float('nan'))))} | {_format_float(float(row.get('selection_rate', float('nan'))))} |"
+                + f"{format_float(float(row.get('fpr', float('nan'))))} | {format_float(float(row.get('fnr', float('nan'))))} | {format_float(float(row.get('precision', float('nan'))))} | {format_float(float(row.get('selection_rate', float('nan'))))} |"
             )
         lines.append("")
 
@@ -254,11 +208,11 @@ def write_fairness_report(best_models_path: Path | None = None, out_path: Path |
 
         ds = all_sets[dataset_key][horizon]
         ds = _add_age_group(ds)
-        target_col = _extract_target_column(ds)
+        target_col = extract_target_column(ds)
 
         y = pd.to_numeric(ds[target_col], errors="coerce").fillna(0).astype(int).to_numpy()
         feature_frame = ds.drop(columns=[target_col]).copy()
-        fit_idx, cal_idx, test_idx = _split_train_cal_test(y)
+        fit_idx, cal_idx, test_idx = split_train_cal_test(y)
         test_frame = ds.iloc[test_idx].copy()
         y_list = y[test_idx].astype(int).tolist()
 
@@ -275,7 +229,7 @@ def write_fairness_report(best_models_path: Path | None = None, out_path: Path |
         ]
 
         for variant_name, variant_features in variants:
-            x_df, _ = _prepare_feature_matrix(variant_features)
+            x_df, _ = prepare_feature_matrix(variant_features)
             x = x_df.to_numpy(dtype=float)
             p_test = _train_predict_xgb(
                 x=x,
@@ -286,7 +240,7 @@ def write_fairness_report(best_models_path: Path | None = None, out_path: Path |
                 params=dict(params),
                 calibration=calibration,
             )
-            metrics = _evaluate(y[test_idx], p_test)
+            metrics = evaluate_metrics(y[test_idx], p_test)
 
             ci_brier = bootstrap_ci(
                 y[test_idx].astype(int).tolist(),
@@ -309,12 +263,12 @@ def write_fairness_report(best_models_path: Path | None = None, out_path: Path |
                     "",
                     "| Metric | Value |",
                     "|---|---:|",
-                    f"| Brier | {_format_float(metrics['brier'])} |",
-                    f"| Brier (CI) | {_format_float(float(ci_brier['lower']))}–{_format_float(float(ci_brier['upper']))} |",
-                    f"| AUROC | {_format_float(metrics['auroc'])} |",
-                    f"| AUPRC | {_format_float(metrics['auprc'])} |",
-                    f"| Log loss | {_format_float(metrics['log_loss'])} |",
-                    f"| ECE | {_format_float(metrics['ece'])} |",
+                    f"| Brier | {format_float(metrics['brier'])} |",
+                    f"| Brier (CI) | {format_float(float(ci_brier['lower']))}–{format_float(float(ci_brier['upper']))} |",
+                    f"| AUROC | {format_float(metrics['auroc'])} |",
+                    f"| AUPRC | {format_float(metrics['auprc'])} |",
+                    f"| Log loss | {format_float(metrics['log_loss'])} |",
+                    f"| ECE | {format_float(metrics['ece'])} |",
                     "",
                 ]
             )
@@ -344,8 +298,8 @@ def write_fairness_report(best_models_path: Path | None = None, out_path: Path |
                     [
                         f"### {group_name} (gap summary)",
                         "",
-                        f"- Threshold sweep gaps (0..1 step 0.05): `fpr_gap_max={_format_float(float(gaps['fpr_gap_max']))}`, `fpr_gap_mean={_format_float(float(gaps['fpr_gap_mean']))}`, `fnr_gap_max={_format_float(float(gaps['fnr_gap_max']))}`, `fnr_gap_mean={_format_float(float(gaps['fnr_gap_mean']))}`",
-                        f"- Bootstrap gaps @0.5 (CI): `fpr_gap={_format_float(float(ci_fpr_gap['estimate']))}` ({_format_float(float(ci_fpr_gap['lower']))}–{_format_float(float(ci_fpr_gap['upper']))}), `fnr_gap={_format_float(float(ci_fnr_gap['estimate']))}` ({_format_float(float(ci_fnr_gap['lower']))}–{_format_float(float(ci_fnr_gap['upper']))})",
+                        f"- Threshold sweep gaps (0..1 step 0.05): `fpr_gap_max={format_float(float(gaps['fpr_gap_max']))}`, `fpr_gap_mean={format_float(float(gaps['fpr_gap_mean']))}`, `fnr_gap_max={format_float(float(gaps['fnr_gap_max']))}`, `fnr_gap_mean={format_float(float(gaps['fnr_gap_mean']))}`",
+                        f"- Bootstrap gaps @0.5 (CI): `fpr_gap={format_float(float(ci_fpr_gap['estimate']))}` ({format_float(float(ci_fpr_gap['lower']))}–{format_float(float(ci_fpr_gap['upper']))}), `fnr_gap={format_float(float(ci_fnr_gap['estimate']))}` ({format_float(float(ci_fnr_gap['lower']))}–{format_float(float(ci_fnr_gap['upper']))})",
                         "",
                     ]
                 )
