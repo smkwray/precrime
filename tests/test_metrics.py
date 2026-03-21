@@ -179,6 +179,17 @@ class TestMetricsVsSklearn(unittest.TestCase):
         reference = sklearn_ll(y_true, y_prob)
         self.assertAlmostEqual(custom, reference, places=5)
 
+    def test_auprc_close_to_sklearn(self):
+        from sklearn.metrics import average_precision_score
+        rng = np.random.default_rng(101)
+        y_true = rng.integers(0, 2, size=500).tolist()
+        y_prob = rng.uniform(0, 1, size=500).tolist()
+        custom = auprc(y_true, y_prob)
+        reference = average_precision_score(y_true, y_prob)
+        # Trapezoidal (ours) vs step-function (sklearn) differ slightly;
+        # they should agree within ~1% for reasonable data.
+        self.assertAlmostEqual(custom, reference, places=2)
+
 
 if __name__ == "__main__":
     unittest.main()

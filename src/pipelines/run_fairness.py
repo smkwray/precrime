@@ -229,7 +229,9 @@ def write_fairness_report(best_models_path: Path | None = None, out_path: Path |
         ]
 
         for variant_name, variant_features in variants:
-            x_df, _ = prepare_feature_matrix(variant_features)
+            train_indices = np.concatenate([fit_idx, cal_idx])
+            _, fit_cols = prepare_feature_matrix(variant_features.iloc[train_indices])
+            x_df, _ = prepare_feature_matrix(variant_features, fit_columns=fit_cols)
             x = x_df.to_numpy(dtype=float)
             p_test = _train_predict_xgb(
                 x=x,

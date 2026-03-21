@@ -316,7 +316,9 @@ def write_model_sweep_report(
             variants.append(("without_race", _no_race_columns(feature_frame)))
 
         for variant_name, variant_features in variants:
-            x_df, _ = prepare_feature_matrix(variant_features)
+            train_indices = np.concatenate([fit_idx, cal_idx])
+            _, fit_cols = prepare_feature_matrix(variant_features.iloc[train_indices])
+            x_df, _ = prepare_feature_matrix(variant_features, fit_columns=fit_cols)
             x = x_df.to_numpy(dtype=float)
 
             def add_record(model: str, calibration: str, p_test: np.ndarray, p_cal_raw: np.ndarray, y_cal: np.ndarray, extra: dict[str, object] | None = None) -> None:

@@ -33,7 +33,7 @@ from src.pipelines._split_utils import (
     extract_target_column,
     format_float,
     prepare_feature_matrix,
-    split_train_cal_test,
+    split_train_cal_select_test,
 )
 
 
@@ -167,6 +167,7 @@ def _train_predict_xgb(
     y: np.ndarray,
     fit_idx: np.ndarray,
     cal_idx: np.ndarray,
+    select_idx: np.ndarray,
     test_idx: np.ndarray,
     n_trials: int,
 ) -> tuple[np.ndarray, dict[str, object], str]:
@@ -192,16 +193,31 @@ def _train_predict_xgb(
 
     model = train_xgb(x_train=x[fit_idx], y_train=y[fit_idx], params=tune.best_params, seed=RANDOM_SEED)
     p_cal_raw = model.predict_proba(x[cal_idx])[:, 1]
+    p_select_raw = model.predict_proba(x[select_idx])[:, 1]
     p_test_raw = model.predict_proba(x[test_idx])[:, 1]
 
-    preds = {
-        "raw": np.clip(p_test_raw, 1e-6, 1.0 - 1e-6),
-        "platt": PlattCalibrator().fit(p_cal_raw, y[cal_idx]).predict(p_test_raw),
-        "isotonic": IsotonicCalibrator().fit(p_cal_raw, y[cal_idx]).predict(p_test_raw),
+    # Fit calibrators on cal split, evaluate candidates on select split.
+    platt_cal = PlattCalibrator().fit(p_cal_raw, y[cal_idx])
+    iso_cal = IsotonicCalibrator().fit(p_cal_raw, y[cal_idx])
+
+    select_preds = {
+        "raw": np.clip(p_select_raw, 1e-6, 1.0 - 1e-6),
+        "platt": platt_cal.predict(p_select_raw),
+        "isotonic": iso_cal.predict(p_select_raw),
     }
-    # Choose the calibration with lowest Brier on the held-out test split.
-    best_cal = min(preds.keys(), key=lambda k: brier_score(y[test_idx].astype(int).tolist(), preds[k].tolist()))
-    return preds[best_cal], dict(tune.best_params), str(best_cal)
+    # Choose the calibration with lowest Brier on the held-out *select* split (not test).
+    best_cal = min(
+        select_preds.keys(),
+        key=lambda k: brier_score(y[select_idx].astype(int).tolist(), select_preds[k].tolist()),
+    )
+
+    # Produce final predictions on the test split using the chosen calibration.
+    test_preds = {
+        "raw": np.clip(p_test_raw, 1e-6, 1.0 - 1e-6),
+        "platt": platt_cal.predict(p_test_raw),
+        "isotonic": iso_cal.predict(p_test_raw),
+    }
+    return test_preds[best_cal], dict(tune.best_params), str(best_cal)
 
 
 def write_compas_fairness_report(out_path: Path | None = None, xgb_trials: int = 16) -> Path:
@@ -212,7 +228,7 @@ def write_compas_fairness_report(out_path: Path | None = None, xgb_trials: int =
 
     y = pd.to_numeric(df[target_col], errors="coerce").fillna(0).astype(int).to_numpy()
     feature_frame = df.drop(columns=[target_col]).copy()
-    fit_idx, cal_idx, test_idx = split_train_cal_test(y)
+    fit_idx, cal_idx, select_idx, test_idx = split_train_cal_select_test(y)
     test_frame = df.iloc[test_idx].copy()
     y_list = y[test_idx].astype(int).tolist()
 
@@ -233,7 +249,7 @@ def write_compas_fairness_report(out_path: Path | None = None, xgb_trials: int =
         "",
         f"Generated: {datetime.now().astimezone().strftime('%Y-%m-%d %H:%M %Z')}",
         "",
-        "This report trains a tuned XGBoost model on a seeded train/calibration/test split and reports subgroup metrics.",
+        "This report trains a tuned XGBoost model on a seeded train/calibration/selection/test split and reports subgroup metrics.",
         "",
         "Two variants are reported:",
         "- **With race**: training features include `race` (if present).",
@@ -255,6 +271,7 @@ def write_compas_fairness_report(out_path: Path | None = None, xgb_trials: int =
             y=y,
             fit_idx=fit_idx,
             cal_idx=cal_idx,
+            select_idx=select_idx,
             test_idx=test_idx,
             n_trials=xgb_trials,
         )

@@ -82,7 +82,9 @@ def write_policy_curves(
 
     # 4-way split: thresholds derived from select split
     fit_idx, cal_idx, select_idx, test_idx = split_train_cal_select_test(y_full, seed=RANDOM_SEED)
-    x_df, _ = prepare_feature_matrix(feature_frame)
+    train_indices = np.concatenate([fit_idx, cal_idx, select_idx])
+    _, fit_cols = prepare_feature_matrix(feature_frame.iloc[train_indices])
+    x_df, _ = prepare_feature_matrix(feature_frame, fit_columns=fit_cols)
     x_np = x_df.to_numpy(dtype=float)
 
     p_select = _train_predict_xgb(

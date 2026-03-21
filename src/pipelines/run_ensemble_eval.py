@@ -140,7 +140,9 @@ def write_ensemble_report(
         feature_frame = ds.drop(columns=[target_col]).copy()
         fit_idx, cal_idx, test_idx = split_train_cal_test(y)
 
-        x_df, _ = prepare_feature_matrix(feature_frame)
+        train_indices = np.concatenate([fit_idx, cal_idx])
+        _, fit_cols = prepare_feature_matrix(feature_frame.iloc[train_indices])
+        x_df, _ = prepare_feature_matrix(feature_frame, fit_columns=fit_cols)
         x = x_df.to_numpy(dtype=float)
 
         test_frame = ds.iloc[test_idx].copy()
