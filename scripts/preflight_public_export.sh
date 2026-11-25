@@ -34,12 +34,12 @@ if find "${OUT_DIR}" -type f \( -name '*.parquet' -o -name '*.csv' \) | rg -q .;
   fail "export contains .csv/.parquet row-level files"
 fi
 
-# Grep for common private-machine leaks. Allow PUBLISHING.md because it documents the check itself.
+# Grep for common private-machine leaks.
 tmp="$(mktemp)"
-trap 'rm -f "${tmp}"' EXIT
+terms="$(mktemp)"
+trap 'rm -f "${tmp}" "${terms}"' EXIT
 
 rg -n "/Users/|Library/CloudStorage|GoogleDrive-" "${OUT_DIR}" \
-  --glob '!**/docs/PUBLISHING.md' \
   --glob '!**/scripts/preflight_public_export.sh' >"${tmp}" || true
 if [ -s "${tmp}" ]; then
   echo "[preflight] found potential private paths:" >&2
@@ -47,18 +47,24 @@ if [ -s "${tmp}" ]; then
   fail "remove private paths"
 fi
 
-# Flag explicit usernames and explicit IPv4 addresses (avoid false positives on values like 1e-3 or 10.0).
-rg -n "shanewray@" "${OUT_DIR}" \
-  --glob '!**/docs/PUBLISHING.md' \
-  --glob '!**/scripts/preflight_public_export.sh' >"${tmp}" || true
-if [ -s "${tmp}" ]; then
-  echo "[preflight] found explicit username references:" >&2
-  cat "${tmp}" >&2
-  fail "remove explicit usernames"
+# Flag private identifiers (usernames, host names) listed one per line in a
+# local, gitignored .private-denylist. Lines starting with # are comments.
+denylist="${ROOT_DIR}/.private-denylist"
+if [ -f "${denylist}" ]; then
+  grep -v '^[[:space:]]*#' "${denylist}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e '/^$/d' >"${terms}" || true
+fi
+if [ -s "${terms}" ]; then
+  rg -n -i -w -F -f "${terms}" "${OUT_DIR}" >"${tmp}" || true
+  if [ -s "${tmp}" ]; then
+    echo "[preflight] found private identifiers from ${denylist}:" >&2
+    cut -d: -f1,2 "${tmp}" >&2
+    fail "remove private identifiers"
+  fi
+else
+  echo "[preflight] no .private-denylist terms; skipping identifier check"
 fi
 
 rg -n "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b" "${OUT_DIR}" \
-  --glob '!**/docs/PUBLISHING.md' \
   --glob '!**/scripts/preflight_public_export.sh' >"${tmp}" || true
 if [ -s "${tmp}" ]; then
   echo "[preflight] found IPv4-looking strings (replace with placeholders):" >&2

@@ -320,4 +320,8 @@ To produce a shareable package (code + docs + aggregate reports, no row-level da
 bash scripts/build_public_export.sh
 ```
 
-See [PUBLISHING.md](PUBLISHING.md) for data-governance guidance and a pre-publication checklist.
+Then check the export for row-level files, absolute paths and IP addresses before sharing it:
+
+```bash
+bash scripts/preflight_public_export.sh public_export
+```
