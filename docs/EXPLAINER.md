@@ -9,7 +9,7 @@ This project reports **probability predictions** (e.g., “0.30 risk”), not ju
 
 - **Brier score (lower is better):** average squared error of the predicted probabilities. It improves when probabilities are numerically closer to outcomes (0/1) *and* when ranking improves.
 - **AUROC (higher is better):** how well the model ranks positives above negatives, regardless of calibration.
-- **AUPRC (higher is better):** like AUROC but more informative when the positive class is not rare.
+- **AUPRC (higher is better):** summarizes precision and recall across thresholds. It is especially useful when positives are rare.
 - **ECE (lower is better):** how far predicted probabilities are from observed rates across probability bins.
 
 ## Thresholded metrics (depend on policy)

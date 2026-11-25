@@ -292,8 +292,8 @@ Datasets must be obtained from their original sources. The NIJ Georgia parole da
 
 ```bash
 # Environment setup
-python -m venv ~/venvs/precrime
-source ~/venvs/precrime/bin/activate
+python -m venv ../precrime-venv
+source ../precrime-venv/bin/activate
 pip install -r requirements.txt
 pip install -r requirements-modeling.txt
 
@@ -308,20 +308,4 @@ make fairness BOOTSTRAP=2000 BOOTSTRAP_SUBGROUP=200
 
 # Generate static figures (requires reports to exist)
 make figures
-```
-
-For heavy tuning runs, an optional remote-execution script syncs the repo to a configurable remote host, runs jobs with thread caps, and syncs reports back. See `scripts/remote_heavy_refresh.sh` and the README for details.
-
-### Public Export
-
-To produce a shareable package (code + docs + aggregate reports, no row-level data):
-
-```bash
-bash scripts/build_public_export.sh
-```
-
-Then check the export for row-level files, absolute paths and IP addresses before sharing it:
-
-```bash
-bash scripts/preflight_public_export.sh public_export
 ```

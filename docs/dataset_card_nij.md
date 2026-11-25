@@ -5,7 +5,7 @@ This dataset is used to build and evaluate models that predict **rearrest outcom
 
 ## Provenance
 - Source: National Institute of Justice (NIJ) — *Recidivism Forecasting Challenge* (Georgia parole). Downloaded via scripts in `src/data/` into `data/raw/nij/`.
-- License/terms: see NIJ challenge page and accompanying materials (record locally if/when provided).
+- License/terms: see NIJ challenge page and accompanying materials.
 
 ## Unit of analysis
 - One row per person (parolee) in the NIJ challenge data.
@@ -53,8 +53,8 @@ Policy in this repo:
 - Using these labels as if they measure anything beyond rearrest events.
 - Any attempt to identify individuals (the data should be treated as sensitive even if de-identified).
 
-## Preprocessing and feature policy (planned)
-Preprocessing is implemented in `src/data/` and `src/features/` and should follow:
+## Preprocessing and features
+Preprocessing is implemented in `src/data/` and `src/features/` and uses:
 - Schema-driven typing and missing-value handling (`schemas/nij.yml`).
 - Categorical handling (e.g., one-hot) and numeric normalization as needed.
 - Two feature tracks:
@@ -67,8 +67,9 @@ Preprocessing is implemented in `src/data/` and `src/features/` and should follo
 - **Label ambiguity**: rearrest ≠ reconviction ≠ actual offending.
 - **Fairness harms**: models may amplify existing disparities; fairness metrics are necessary but not sufficient.
 
-## Documentation to be filled after download
-Current (local) record counts:
+## Sample sizes
+
+Record counts:
 - Train: 18,028 rows (`data/raw/nij/nij-challenge2021_training_dataset.csv`)
 - Test releases:
   - Test 1: 7,807 rows (`nij-challenge2021_test_dataset_1.csv`)

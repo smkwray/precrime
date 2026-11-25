@@ -33,3 +33,9 @@ remote_logs/
 
 
 .private-denylist
+
+# Locally generated reports
+/reports/compas_predictive_factors.md
+/reports/individual_analysis.md
+/reports/ncrp_37973_predictive_factors.md
+/reports/nij_style_score.md

@@ -24,7 +24,7 @@ This project builds a **reproducible research pipeline** that predicts **rearres
 ### COMPAS (ProPublica benchmark)
 - Benchmark report: `reports/compas_benchmark.md`
 
-## Publish-ready interpretation highlights
+## Results
 
 ### What AUROC and Brier mean (plain English)
 - `AUROC` measures ranking quality: does the model usually assign higher risk scores to people who are rearrested than to those who are not?
@@ -46,43 +46,9 @@ From `reports/stability_eval.md`:
 
 Interpretation: aggregate performance is fairly stable in this 3-seed check; subgroup disparity estimates are less stable and should be treated as uncertainty-aware diagnostics, not fixed constants.
 
-<details>
-<summary><strong>Run metadata (internal)</strong></summary>
+## Reproducibility
 
-## Refresh status (2026-03-01)
-- NIJ XGBoost rerun completed with `--xgb-trials 32` and refreshed:
-  - `reports/xgb_leaderboard.md`
-  - `reports/xgb_best_models.json`
-- NIJ fairness rerun completed with:
-  - `PRECRIME_FAIRNESS_BOOTSTRAP=2000`
-  - `PRECRIME_FAIRNESS_BOOTSTRAP_SUBGROUP=200`
-  - refreshed `reports/fairness_report.md`
-- COMPAS rerun completed with `--xgb-trials 32` and refreshed `reports/compas_benchmark.md`.
-- Remote reruns applied thread-cap policy: `PRECRIME_N_JOBS=8` per concurrent job (two concurrent jobs, effective cap `16`).
-
-### Data products
-- NIJ processed parquets (static/dynamic × Y1/Y2/Y3): `data/processed/nij_*.parquet` (local-only; **not included in public export**)
-- COMPAS processed parquet: `data/processed/compas_2yr.parquet` (local-only; **not included in public export**)
-
-</details>
-
-## How to reproduce
-Use the shared venv (never create `.venv*` inside repo):
-1. `python -m venv ~/venvs/precrime`
-2. `source ~/venvs/precrime/bin/activate`
-3. `pip install -r requirements.txt`
-4. (Optional modeling deps) `pip install -r requirements-modeling.txt`
-5. `python -m unittest -q tests/test_env_policy.py tests/test_metrics.py tests/test_leakage.py tests/test_compas.py`
-6. NIJ:
-   - `python -m src.pipelines.run_nij --task baselines`
-   - `python -m src.pipelines.run_nij --task xgb --xgb-trials 16`
-   - `PRECRIME_FAIRNESS_BOOTSTRAP=500 python -m src.pipelines.run_fairness`
-7. COMPAS:
-   - `python -m src.pipelines.run_compas --task all --xgb-trials 16`
-
-### Convenience entrypoints
-- Local rebuild via Make targets: `make test`, `make nij-xgb TRIALS=32`, `make compas TRIALS=32`, `make fairness BOOTSTRAP=2000 BOOTSTRAP_SUBGROUP=200`
-- Remote heavy refresh (rsync → run → rsync back): `make remote-refresh TRIALS=32 N_JOBS_PER_JOB=8 BOOTSTRAP=2000 BOOTSTRAP_SUBGROUP=200`
+See the [README](../README.md#reproduce) for setup and run commands.
 
 ## Notes / limitations (non-exhaustive)
 - Rearrest is influenced by policing and supervision intensity; subgroup disparities can reflect system dynamics, not “risk.”

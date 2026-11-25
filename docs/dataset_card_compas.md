@@ -42,8 +42,9 @@ Policy in this repo:
 - Filtering choices in the public analysis pipeline can materially change metrics; replication must document these choices.
 - Results from this dataset should not be generalized to other jurisdictions/populations.
 
-## Documentation to be filled after download
-Current (local) file + row counts:
+## Sample and labels
+
+File and row counts:
 - Raw file used: `data/raw/compas/compas-scores-two-years.csv` (7,214 rows)
 - Filtered “two-year analysis sample” built by this repo: `data/processed/compas_2yr.parquet` (6,172 rows)
 

@@ -62,11 +62,14 @@ if [ -d "${ROOT_DIR}/.github" ]; then
 fi
 
 mkdir -p "${TMP_OUT}/reports"
-rsync -a --exclude '.DS_Store' "${ROOT_DIR}/reports/"*.md "${TMP_OUT}/reports/" 2>/dev/null || true
+git -C "${ROOT_DIR}" ls-files -z -- 'reports/*.md' |
+  rsync -a --from0 --files-from=- "${ROOT_DIR}/" "${TMP_OUT}/"
 mkdir -p "${TMP_OUT}/reports/plots"
 rsync -a --exclude '.DS_Store' "${ROOT_DIR}/reports/plots/"*.json "${TMP_OUT}/reports/plots/" 2>/dev/null || true
 
-copy "${ROOT_DIR}/docs/public_export_template.md" "${TMP_OUT}/README_EXPORT.md"
+if [ -f "${ROOT_DIR}/docs/public_export_template.md" ]; then
+  copy "${ROOT_DIR}/docs/public_export_template.md" "${TMP_OUT}/README_EXPORT.md"
+fi
 
 # Add a conservative gitignore for the export, so it can be initialized as a separate repo safely.
 cat > "${TMP_OUT}/.gitignore" <<'EOF'
