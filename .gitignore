@@ -31,3 +31,5 @@ docs/START_HERE.md
 remote_logs/
 *.log
 
+
+.private-denylist
